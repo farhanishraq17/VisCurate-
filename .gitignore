@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# VisCurate data/results — large, generated, reproducible from manifests.
+# Probe images and oracle outputs are regenerated from seeds; never committed raw.
+data/probe_images/
+data/oracle/
+results/
+*.npz
+*.npy
+
+# Manifests and configs ARE tracked (small, define reproducibility) — keep them.
+!data/**/manifest.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local tool settings
+.claude/settings.local.json

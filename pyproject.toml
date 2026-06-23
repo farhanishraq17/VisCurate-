@@ -1,0 +1,116 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "viscurate"
+version = "0.0.1"
+description = "VisCurate — output-grounded equivalence verification and library curation for visual skill libraries."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "VisCurate" }]
+keywords = ["computer-vision", "curation", "equivalence", "benchmark"]
+
+# Core runtime deps — dependency-light. Phases 0 and 1 require ONLY these.
+# The output-grounded ML comparators (Phase 3+) live in the optional `ml` extra
+# so that the skill harness stays importable with zero ML dependencies (CLAUDE.md §4).
+dependencies = [
+    "numpy>=1.26",
+    "pillow>=10.0",
+    "opencv-python>=4.8",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+# Output-grounded comparators (Phase 3): LPIPS (AlexNet), DINO ViT-B/16, CLIP ViT-B/32.
+ml = [
+    "torch>=2.2",
+    "lpips>=0.1.4",
+    "timm>=1.0",
+    "open-clip-torch>=2.24",
+    "scikit-image>=0.22",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+viscurate = "viscurate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+viscurate = ["py.typed"]
+
+# ---------------------------------------------------------------------------
+# Lint / format
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+    "B008",   # function call in argument defaults — used intentionally for np factories
+    # The problem domain uses Greek letters (ρ, τ, ε, δ, σ) and en/em dashes in prose.
+    "RUF001", "RUF002", "RUF003",
+    # Explicit int(round(...)) casts defensively guarantee Python ints for cv2 size tuples.
+    "RUF046",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+# ---------------------------------------------------------------------------
+# Types — strict on our code, lenient on untyped third-party libs.
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+strict = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+disallow_untyped_defs = true
+no_implicit_optional = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+# Third-party libs without (complete) type stubs. Our boundary code is still typed.
+module = ["cv2", "cv2.*", "structlog", "structlog.*", "lpips", "timm", "timm.*", "open_clip", "PIL", "PIL.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# scikit-image (used only for SSIM) pulls transitive deps (e.g. tifffile) that use 3.12-only
+# `type` statements, which break mypy pinned at 3.11. We don't type-check inside it: skip the
+# follow so mypy never descends into those modules.
+module = ["skimage", "skimage.*", "tifffile", "tifffile.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Skill implementations + synthetic generators are thin cv2/numpy wrappers that return `Any`
+# from untyped libs. Signatures are still fully typed; we only relax return-value-is-Any here.
+module = ["viscurate.skills.library.*", "viscurate.probes.synthetics", "viscurate.probes.coco"]
+warn_return_any = false
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+    "slow: tests that load real ML models (LPIPS/DINO/CLIP); deselect with -m 'not slow'",
+]

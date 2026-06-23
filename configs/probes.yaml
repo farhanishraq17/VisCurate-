@@ -1,0 +1,30 @@
+# Probe-battery configuration (CLAUDE.md §2.1). Pilot scale ~200 images.
+# Reproducible: same seed -> same probe bytes -> same hashes.
+
+seed: 1234
+size: 128 # base side for synthetic probes (degenerate cases set their own sizes)
+
+# Per-domain synthetic counts (a fraction of each is emitted in RGBA/gray/16-bit/palette).
+counts:
+  gradient: 25
+  texture: 30
+  shape: 25
+  document: 25
+  colorchart: 10
+  noise: 15
+
+# Natural photos from COCO test2017, filtered to permissive licenses (CC BY 2.0 / PD).
+n_natural: 40
+download_natural: true
+
+# Coverage floor enforced on each synthetic domain (a defect needs probes to fire on).
+min_per_domain: 5
+
+required_degenerate:
+  - all_black
+  - all_white
+  - single_color
+  - one_by_one
+  - thin_1xN
+  - thin_Nx1
+  - high_res_1024

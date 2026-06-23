@@ -1,0 +1,45 @@
+# Parameter alignment (CLAUDE.md §3.5.2). Auditable, never hard-coded in the comparator.
+#
+# `axes` are SYMMETRIC matched-sweep axes (both members span the same axis bidirectionally):
+# the comparator evaluates both skills at every matched value and takes the worst case. This
+# is the headline case — blur_gaussian vs blur_box agree at small k, diverge at large k, so
+# the worst-case correctly returns DISTINCT where a default-only check would wrongly merge.
+#
+# `subsumption_grids` are explicit search grids for a GENERALIZING skill, so a specialization's
+# output is findable during directional subsumption search. They never enter the EXACT sweep.
+
+version: "1"
+
+axes:
+  - name: kernel_size
+    values: [3, 5, 7, 9, 11, 15, 21]
+    members:
+      blur_gaussian_v1: { param: ksize, fixed: { sigma: 0.0 } } # sigma 0 → derived from k
+      blur_box_v1: { param: ksize }
+
+subsumption_grids:
+  # rotate_90/180/270/45 ⊑ rotate_canvas_degrees — exact for multiples of 90 at any size.
+  rotate_canvas_degrees_v1:
+    - { degrees: 0.0 }
+    - { degrees: 45.0 }
+    - { degrees: 90.0 }
+    - { degrees: 180.0 }
+    - { degrees: 270.0 }
+    - { degrees: 359.0 }
+  # crop_center_percentage ⊑ crop_bounding_box — centered boxes reproduce the center crops
+  # (exact on even-sided probes; off-center boxes are what only the general skill can do).
+  crop_center_percentage_v1: # the specialization's own search grid (aligned fractions)
+    - { percent: 25.0 }
+    - { percent: 50.0 }
+    - { percent: 75.0 }
+  crop_bounding_box_v1:
+    - { left: 0.0, top: 0.0, width: 1.0, height: 1.0 }
+    - { left: 0.25, top: 0.25, width: 0.5, height: 0.5 } # = crop_center 50%
+    - { left: 0.375, top: 0.375, width: 0.25, height: 0.25 } # = crop_center 25%
+    - { left: 0.125, top: 0.125, width: 0.75, height: 0.75 } # = crop_center 75%
+    - { left: 0.0, top: 0.0, width: 0.5, height: 0.5 } # off-center (only bbox can)
+  # linear_contrast_stretch ⊑ contrast_stretching_percentile — percentile(0,100) == linear.
+  contrast_stretching_percentile_v1:
+    - { low_pct: 0.0, high_pct: 100.0 } # = linear stretch
+    - { low_pct: 2.0, high_pct: 98.0 }
+    - { low_pct: 5.0, high_pct: 95.0 }

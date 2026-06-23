@@ -1,0 +1,40 @@
+# VisCurate default configuration.
+#
+# Every value the code reads at runtime lives here (no magic literals in code).
+# Thresholds below are PLACEHOLDERS for wiring + tests only — `calibrated: false`.
+# A run that reports equivalence metrics must replace them with values calibrated on the
+# human-labeled validation split and set the provenance fields (CLAUDE.md §3.5.5).
+
+run:
+  name: default
+  seed: 1234
+
+paths:
+  data_dir: data
+  probe_dir: data/probe_images
+  oracle_dir: data/oracle
+  results_dir: results
+  configs_dir: configs
+
+executor:
+  timeout_s: 10.0
+  max_memory_mb: 2048
+  # Hard safety gate: untrusted (e.g. agent-generated) skills cannot execute until the
+  # Phase-6 hardened sandbox is reviewed. Keep false (CLAUDE.md §5, D6).
+  allow_untrusted: false
+
+logging:
+  level: INFO
+  json_format: true
+
+thresholds:
+  exact_epsilon: 0.00392156862745098 # 1/255 — rounding tolerance for EXACT
+  perceptual_lpips: 0.05 # worst-case LPIPS for PERCEPTUAL
+  perceptual_ssim: 0.10 # max (1−SSIM) structural floor (cross-check)
+  semantic_dino: 0.15 # p90 DINO cosine distance for SEMANTIC_PRESERVING
+  semantic_quantile: 0.90 # aggregation quantile for SEMANTIC (p90)
+  complementary_lpips: 0.05 # commutation tolerance for COMPLEMENTARY
+  abstention_delta: 0.10 # band half-width around each τ → UNCERTAIN
+  calibrated: false
+  calibration_split_hash: null
+  calibration_date: null
