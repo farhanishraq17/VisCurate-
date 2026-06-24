@@ -44,6 +44,16 @@ dev = [
     "mypy>=1.10",
     "types-PyYAML>=6.0",
 ]
+# Optional plotting for the Phase-4 divergence figure. The benchmark always emits the table
+# (markdown + CSV); matplotlib only renders the optional PNG (report.try_plot_divergence).
+viz = [
+    "matplotlib>=3.7",
+]
+# Optional Claude API client for the Phase-6 curation agent. Ollama needs no dependency
+# (stdlib HTTP); only the Anthropic-backed agent adapter requires this.
+agent = [
+    "anthropic>=0.40",
+]
 
 [project.scripts]
 viscurate = "viscurate.cli:main"
@@ -98,7 +108,7 @@ files = ["src"]
 # listed so a CI job *without* `[ml]` installed does not error on the missing import; when
 # torch IS installed (local dev) `ignore_missing_imports` is a no-op and its real stubs are
 # used, so torch calls in `equivalence/backends.py` are still fully type-checked.
-module = ["cv2", "cv2.*", "structlog", "structlog.*", "lpips", "timm", "timm.*", "open_clip", "PIL", "PIL.*", "torch", "torch.*"]
+module = ["cv2", "cv2.*", "structlog", "structlog.*", "lpips", "timm", "timm.*", "open_clip", "PIL", "PIL.*", "torch", "torch.*", "matplotlib", "matplotlib.*", "anthropic", "anthropic.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

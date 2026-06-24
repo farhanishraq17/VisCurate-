@@ -1,0 +1,10 @@
+# Phase 7 query stream (CLAUDE.md §3.3 / Phase 7).
+#
+# Builds held-out query inputs and clean L0 reference outputs. The manifest records hashes,
+# split labels, expected skill ids, and task predicates. Downstream success numbers are produced
+# only when `viscurate run-downstream` is executed against a library.
+
+seed: 2026
+size: 96
+dev_repeats: 1
+test_repeats: 1

@@ -174,6 +174,11 @@ def classify(
     has_axis = alignment is not None and bool(alignment.matched_sweep(a_id, b_id))
     both_fixed = not provider.default_params(a_id) and not provider.default_params(b_id)
 
+    # Worst-case perceptual distances measured in the PERCEPTUAL stage are carried into the
+    # fall-through relations (SEMANTIC/COMPLEMENTARY/DISTINCT) so a rejected merge's reason
+    # quotes LPIPS, not just L∞ — the actionable rejection format of CLAUDE.md §3.2/§3.5.7.
+    carry: dict[str, float] = {}
+
     if has_axis or both_fixed:
         # -- Stage 1: EXACT ---------------------------------------------------------
         if all_hash and pix.value != float("inf"):
@@ -195,6 +200,7 @@ def classify(
         if perceptual is not None:
             lp, ss = _sweep_perceptual_worst(a_id, b_id, sweep, provider, perceptual, seed)
             dist = {"l_inf": pix.value, "lpips": lp.value, "ssim_dist": ss.value}
+            carry = {"lpips": lp.value, "ssim_dist": ss.value}
             if lp.value <= tau_p * (1.0 - delta):
                 if ss.value <= thresholds.perceptual_ssim:
                     return RelationResult(
@@ -259,7 +265,7 @@ def classify(
         dino = _sweep_semantic(a_id, b_id, sweep, provider, semantic, clip, seed)
         p90 = quantile(dino, thresholds.semantic_quantile)
         mn = mean(dino)
-        dist = {"dino_p90": p90, "dino_mean": mn}
+        dist = {"dino_p90": p90, "dino_mean": mn, **carry}
         if p90 <= tau_s * (1.0 - delta) and mn <= tau_s:
             return RelationResult(
                 Relation.SEMANTIC_PRESERVING,
@@ -290,16 +296,23 @@ def classify(
         return RelationResult(
             Relation.COMPLEMENTARY,
             reason=comp.reason,
-            distances={"commute_linf": comp.commute_linf, "commute_lpips": comp.commute_lpips},
+            distances={
+                "commute_linf": comp.commute_linf,
+                "commute_lpips": comp.commute_lpips,
+                **carry,
+            },
             worst_probe=comp.worst_probe,
             alternatives=("keep_separate",),
         )
 
     # -- Stage 6: DISTINCT (residual) -----------------------------------------------
+    reason = f"failed every relation; worst-case L∞ {pix.value:.4f} @ {pix.probe_id}"
+    if "lpips" in carry:
+        reason += f", LPIPS {carry['lpips']:.4f}"
     return RelationResult(
         Relation.DISTINCT,
-        reason=f"failed every relation; worst-case L∞ {pix.value:.4f} @ {pix.probe_id}",
-        distances={"l_inf": pix.value},
+        reason=reason,
+        distances={"l_inf": pix.value, **carry},
         worst_probe=pix.probe_id,
         alternatives=("keep_separate", "parameterize"),
     )

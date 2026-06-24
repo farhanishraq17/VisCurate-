@@ -10,7 +10,8 @@ See [claude.md](claude.md) for the full implementation roadmap and locked decisi
 
 ## Status
 
-Pre-Phase-0 → building. Implemented so far:
+Phase 0–9 machinery is implemented. Real paper numbers still require the Phase-4
+LPIPS/DINO/CLIP divergence go/no-go run and the full study grid.
 
 - **Phase 0 — Scaffold.** Package layout, Pydantic-validated config, explicit seeded
   RNG (no global state), structlog JSON logging, lint/type/test toolchain.
@@ -22,6 +23,12 @@ Pre-Phase-0 → building. Implemented so far:
   probe generators (CC0 synthetics + license-filtered COCO CC BY photos), a coverage-checked
   manifest (no `license=unknown`), and a frozen reference oracle with determinism self-audit.
   Build with `viscurate build-probes` / `viscurate freeze-oracle`.
+- **Phases 3–8 — Equivalence, corruption, curation, downstream, and study aggregation
+  machinery.** Output-grounded verifier, text baselines, corruption grid, curation environment,
+  query stream, downstream evaluator, and Phase-8 aggregation/reporting.
+- **Phase 9 — Experiment runner + paper artifacts.** `viscurate phase9` writes the
+  manifest-backed reproducibility bundle, realism audit, `reproduce.sh`, and Phase-8 paper
+  tables/figures when supplied real `StudyPoint` rows.
 
 ## Architectural rule (load-bearing)
 
@@ -46,6 +53,15 @@ mypy src              # strict type-check
 pytest                # tests
 ```
 
+## Reproduce
+
+```bash
+viscurate phase9 -c configs/phase9.yaml -o results/phase9
+```
+
+The Phase-9 bundle records config hashes, git SHA, model package versions, artifact manifests,
+and pending/missing empirical runs without inventing numbers.
+
 ## Layout
 
 ```
@@ -66,6 +82,11 @@ src/viscurate/
     coco.py            # license-filtered COCO natural-photo loader
     build.py           # battery orchestrator + reproducibility manifest
     oracle.py          # frozen reference oracle (freeze + verify)
+  experiments/
+    config.py          # Phase-9 experiment config
+    manifest.py        # run manifests + reproduce.sh
+    audit.py           # realism audit over manifests/licenses/splits
+    runner.py          # Phase-9 bundle writer
 configs/default.yaml   # example configuration
 configs/probes.yaml    # probe-battery configuration
 tests/                 # determinism, serialization, executor, canonicalization, probes, oracle

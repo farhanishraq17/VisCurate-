@@ -1,0 +1,80 @@
+# The designed relation graph G0 (CLAUDE.md §1.1, §2.3, §2.5) — the Phase-4 answer key.
+#
+# These are the relations the clean base library L0 is *designed* to contain (the blueprint's
+# `known_equivalences`, lifted into a machine-readable graph). They are the ground truth against
+# which BOTH the output-grounded verifier and the text baselines are scored. They are
+# legitimate library *design*, NOT pollution — duplicates/bugs/dead skills are injected later
+# at a controlled rate ρ (Phase 5), so EXACT is empty here.
+#
+# IMPORTANT (CLAUDE.md risk register): these hand-authored labels are *design intent*. The
+# SEMANTIC_PRESERVING / SUBSUMPTION slice is routed to **human verification** (Phase 4 §2.5);
+# the reported κ comes from real annotators, never fabricated. Any pair not listed here is
+# DISTINCT by default (the O(N²) "distinct sea", CLAUDE.md §2.3).
+#
+# Enforced graph properties (CLAUDE.md §2.3):
+#   * subsumption is a DAG (spec ⊑ gen; no cycles);
+#   * EXACT is transitive (closure checked) — trivially satisfied (empty in L0);
+#   * PERCEPTUAL / SEMANTIC are symmetric but NOT assumed transitive (stored unordered).
+
+version: "1"
+
+# EXACT duplicates: none in the clean base. (Injected in Phase 5 corruption.)
+exact: []
+
+# PERCEPTUAL duplicates: none in the clean base. (Injected in Phase 5.)
+perceptual: []
+
+# SUBSUMPTION (directional): `spec ⊑ gen` — every output of `spec` is reproduced by some
+# parameterization of the more-general `gen`, but not conversely (CLAUDE.md §3.5.4).
+subsumption:
+  # Fixed-angle rotations are special cases of the general canvas rotation.
+  - { spec: rotate_90_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_180_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_270_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_45_v1, gen: rotate_canvas_degrees_v1 }
+  # A centered percentage crop is a special case of an arbitrary bounding-box crop.
+  - { spec: crop_center_percentage_v1, gen: crop_bounding_box_v1 }
+  # A linear contrast stretch == percentile(0,100); the percentile op generalizes it.
+  - { spec: linear_contrast_stretch_v1, gen: contrast_stretching_percentile_v1 }
+  # …and levels_adjust generalizes a plain linear stretch as well.
+  - { spec: linear_contrast_stretch_v1, gen: levels_adjust_v1 }
+
+# SEMANTIC_PRESERVING (symmetric, NOT transitive): the "same semantic transformation, different
+# algorithm" neighbours. This is the only class NOT settled by construction — the metric
+# *proposes* it and a human confirms (CLAUDE.md §3.5.4). Listed unordered.
+semantic_preserving:
+  # Two luma weightings for grayscale.
+  - [grayscale_bt601_v1, grayscale_bt709_v1]
+  # The gradient edge family (Sobel/Scharr/Prewitt are near-identical 3×3 gradient operators).
+  - [edges_sobel_v1, edges_scharr_v1]
+  - [edges_sobel_v1, edges_prewitt_v1]
+  - [edges_scharr_v1, edges_prewitt_v1]
+  # Canny (binary edges) and Laplacian (2nd-order) are looser edge-family neighbours —
+  # design intent, explicitly routed to human re-certification.
+  - [edges_sobel_v1, edges_canny_v1]
+  - [edges_sobel_v1, edges_laplacian_v1]
+  # Two ways to brighten/darken multiplicatively in linear vs gamma space.
+  - [gamma_correct_v1, exposure_stops_v1]
+  # Global vs adaptive (CLAHE) histogram equalization.
+  - [equalize_histogram_global_v1, equalize_clahe_v1]
+  # Two inpainting algorithms (Telea fast-marching vs Navier–Stokes).
+  - [inpaint_telea_v1, inpaint_ns_v1]
+  # Two adaptive/auto thresholding methods.
+  - [threshold_otsu_v1, threshold_adaptive_mean_v1]
+
+# COMPLEMENTARY (symmetric): orthogonal/composable ops that operate on disjoint aspects
+# (CLAUDE.md §3.5.4). Morphological dilation and erosion are the canonical complementary pair;
+# open/close are built from them.
+complementary:
+  - [morphology_dilate_v1, morphology_erode_v1]
+
+# DISTINCT hard negatives (CLAUDE.md §2.3, §3.5.4): engineered boundary cases that LOOK similar
+# (similar names/descriptions) but are genuinely different operations. This is where text judges
+# fail and the output-grounded contribution lives — reported as a separate slice.
+distinct_hard_negatives:
+  - [blur_gaussian_v1, blur_box_v1] # agree at small k, diverge at large k
+  - [resize_nearest_v1, resize_bilinear_v1]
+  - [resize_bilinear_v1, resize_bicubic_v1]
+  - [resize_nearest_v1, resize_bicubic_v1]
+  - [pad_reflect_v1, pad_replicate_v1]
+  - [posterize_v1, quantize_uniform_v1]

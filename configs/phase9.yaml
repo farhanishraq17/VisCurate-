@@ -1,0 +1,37 @@
+# Phase 9 — manifest-backed experiment runner + paper artifacts.
+#
+# This config records the one-command reproduction surface. The Phase-9 command fingerprints
+# these configs/artifacts, writes a realism audit, and generates Phase-8 tables/figures only when
+# `points_path` points at real seed-level StudyPoint rows.
+
+name: cvpr_pilot
+date: "2026-06-24"
+seed: 1234
+
+paths:
+  config: configs/default.yaml
+  probes_config: configs/probes.yaml
+  queries_config: configs/queries.yaml
+  corruption_config: configs/corruption.yaml
+  ground_truth: configs/ground_truth_g0.yaml
+  param_alignment: configs/param_alignment.yaml
+
+  probes_dir: data/probe_images
+  oracle_path: data/oracle/oracle.json
+  queries_dir: data/queries
+  corruption_dir: data/corruption
+
+  benchmark_dir: results/phase4_benchmark
+  studies_dir: results/phase8_studies
+  points_path: null # set to a real StudyPoint JSON/CSV before generating paper tables.
+
+benchmark:
+  device: cuda
+  no_ml: false
+  clip: true
+  calibrate: true
+  screening: 12
+  k: 5
+
+output_gate: output
+text_gate: text

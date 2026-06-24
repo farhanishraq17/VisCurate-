@@ -12,6 +12,7 @@ run:
 paths:
   data_dir: data
   probe_dir: data/probe_images
+  query_dir: data/queries
   oracle_dir: data/oracle
   results_dir: results
   configs_dir: configs
@@ -38,3 +39,15 @@ thresholds:
   calibrated: false
   calibration_split_hash: null
   calibration_date: null
+
+curation:
+  budget: 50
+  usage_fold_threshold: 1
+
+downstream:
+  query_seed: 2026
+  query_size: 96
+  dev_repeats: 1
+  test_repeats: 1
+  usage_base_count: 20
+  usage_zipf_alpha: 1.2

@@ -239,110 +239,50 @@ configs/default.yaml   tests/   docs/phase_summaries.md   ClaudeCode.md
   necessary-not-sufficient (two linear filters commute); center-crop subsumption is exact only
   on even-sided probes (PERCEPTUAL tolerance absorbs the rest). See `docs/phase_summaries.md`.
 
-### Phase 4 — Equivalence benchmark ⚠️  **(first go/no-go checkpoint — machinery ✅, real run ⏳)**
-- **Built (✅):** the answer key `G0` (`configs/ground_truth_g0.yaml` + `benchmark/ground_truth.py`,
-  DAG/closure-validated); the text baselines in a **separate** `viscurate/baselines/` package
-  (name-match, dependency-light TF-IDF embedding-cosine, LLM-on-descriptions behind a client
-  protocol); the metrics (per-relation P/R/F1, mergeable decision, false-merge/precision-on-DISTINCT,
-  **divergence-by-true-relation** with the hard-negative slice separate); the runner; the
-  **human-verify + κ** infra (κ pending real annotators); **cluster-disjoint calibration** wiring;
-  the report (table + CSV + manifest + optional figure); and the `viscurate run-benchmark` CLI
-  (`--device cuda` for the H200). 30 new tests; source gate green.
-- **The test of the premise (⏳ not yet run):** text judge merges `blur_gaussian`/`blur_box`;
-  output judge says DISTINCT. The real divergence numbers require the **H200 run** with real
-  LPIPS/DINO/CLIP over the full battery — one command (`run-benchmark --device cuda --clip
-  --calibrate`). **If no divergence appears, stop and understand why before building curation.**
-  No numbers are fabricated here; an offline `--no-ml` wiring smoke confirms the pipeline + report.
+### Phase 4 — Equivalence benchmark ⚠️  **(first go/no-go checkpoint)**
+- **Build:** candidate pairs incl. hard cases; auto-labels; the text baselines
+  (name-match, embedding-cosine, LLM-on-descriptions); **human-verify** the SEMANTIC /
+  SUBSUMPTION subset (report κ); the **divergence table + figure**.
+- **The test of the premise:** text judge merges `blur_gaussian`/`blur_box`; output judge says
+  DISTINCT. **If no divergence appears, stop and understand why before building curation.**
 
-### Phase 5 — Corruption generator ✅ (machinery + QA complete; experiments wait on the Phase-4 gate)
-- **Built** (`src/viscurate/corruption/`): the 7 defect injectors as **named, replayable fn
-  factories** (`mutators.py`), a **deterministic planner** (`plan.py`, eligibility-aware Hamilton
-  apportionment with honest deficit-spill), a **pure replay** (`apply.py` → `L_ρ`, `G_ρ`,
-  ideal-action key), **per-type QA assertions** (`qa.py` — Type 1/6 diverge from the clean
-  reference; Metadata-Mislead & Param-Schema leave outputs **unchanged**; Dead-Skill is
-  flagged-and-distinct), and the **`(ρ, c, seed, mode)` grid driver** (`grid.py` +
-  `configs/corruption.yaml`: ρ ∈ 10…100% × 3 compositions × 5 seeds × {single, mixed}). CLI:
-  `viscurate corrupt`. The corruption **log is canonical**; everything derives from `(L0, log)`,
-  so no skill is ever pickled.
-- **Key contract:** `G_ρ` is `G0` **plus** the log's relation deltas (EXACT/PERCEPTUAL for
-  duplicates, directional SUBSUMPTION for specializations), re-validated by the existing
-  DAG/closure checks — *no existing label is recomputed*. Corrupted skills masquerade
-  (`provenance="builtin"`); the defect lives only in `is_buggy`/`is_dead` or the relations.
-- **Exit (met):** same seed → byte-identical library (log + `registry.to_json()` + `G_ρ` spec);
-  expected per-type counts (uniform ρ=0.3 → `{5,5,4,4,4,4,4}` via Hamilton, seed-independent);
-  buggy skills measurably wrong (**150 sampled `(ρ,c,mode,seed)` instances QA-clean**, incl. all
-  ρ=1.0); `G_ρ` derived deterministically from `G0` + log. **29 tests; source gate green.**
-- **Go/no-go:** this is *generation machinery* (fabricates nothing); the experiments that consume
-  `L_ρ` (Phases 7–8) still wait on the **Phase-4 divergence run** (H200). Requested explicitly and
-  safe to land ahead of the gate.
+### Phase 5 — Corruption generator ⬜
+- **Build:** the 7 defect injectors, each with a per-type QA assertion (Type 1 diverges from
+  oracle; Metadata-Mislead and Dead-Skill leave outputs **unchanged**). Emit `L_ρ`, `G_ρ`,
+  corruption log, and ideal-action key over a `(ρ, composition c, seed)` grid; ρ ∈ 10…100%,
+  ≥5 seeds, ≥3 compositions + a mixed mode.
+- **Exit:** same seed → byte-identical library; expected per-type counts; buggy skills
+  measurably wrong vs oracle; `G_ρ` derived deterministically from `G0` + log (no relabeling).
 
-### Phase 6 — Curation environment ✅ (machinery + sandbox boundary complete)
-- **Built** (`src/viscurate/curation/`): the state representation (`CurationState` /
-  `SkillSummary` from `agent_view` — **no internal labels**) + `UsageStats` (Layer-E seam); the
-  action API (`add/remove/modify/retrieve/merge/split/parameterize/end`) with serializable
-  `ActionResult` logs; **verifier gating** (`gating.py`) — the relation→action map with the
-  structured §3.5.7 rejection (relation + deciding distances + alternatives); the
-  `CurationEnvironment` (trust gate → verifier gate → apply, usage advisories, structlog logging)
-  + `run_episode`/`EpisodeResult`; the **sandbox trust boundary** (`sandbox.py` — untrusted code
-  blocked, hardening plan documented, **not** enabled); and agent adapters (`ScriptedAgent`,
-  `LlmCurationAgent` behind a swappable `LlmClient`, `OllamaClient` multi-model + optional
-  `AnthropicClient`/Claude Opus 4.8). CLI: `viscurate curate`. `CurationConfig` adds the episode
-  budget (Pareto action-cost axis). The Phase-3 verifier was touched only to thread worst-case
-  LPIPS into rejection reasons.
-- **Key contract:** the output-grounded path stays text-blind by type (the verifier gets a
-  `ComparatorView` + `OutputProvider`); a structural edit can only be applied through
-  `apply`, which calls the gate first; agent-generated skills are `trusted=False` and blocked
-  from execution/verification pending the human-reviewed hardened sandbox (CLAUDE.md §5).
-- **Exit (met):** `merge(blur_gaussian, blur_box)` rejected with LPIPS in the rejection;
-  exact-dup merge approved (2→1); untrusted (added) skill BLOCKED; `end()` clean; every action
-  logged + JSON round-trips. **20 tests; source gate green (ruff + ruff-format + mypy --strict;
-  243 passed, 4 deselected slow).**
-- **Carried forward:** the hardened sandbox is deliberately unimplemented (untrusted exec stays
-  blocked); `split` and fn-`modify` need trusted new code (out of v1); usage is supplied, not yet
-  query-driven (Phase 7 wires the Zipfian/query usage that makes the "decline if heavily used"
-  gate bite).
+### Phase 6 — Curation environment ⬜
+- **Build:** state representation (no internal labels), the action API
+  (`add/remove/modify/retrieve/merge/split/parameterize/end`), **verifier gating** with
+  structured rejection-and-reason, the relation→action map with usage gates, agent adapter
+  (Ollama multi-model; Claude API optional), action logging. **Harden the sandbox here**
+  (agent-generated code → `trusted=False`, blocked until reviewed).
+- **Exit:** `merge(blur_gaussian, blur_box)` rejected with LPIPS in the reason; exact-dup
+  merge approved; untrusted skill BLOCKED; `end()` clean; actions logged.
 
-### Phase 7 — Query stream + downstream eval ✅ (machinery complete)
-- **Built** (`src/viscurate/downstream/`): `Query` / `QueryManifest`, deterministic query
-  generation (`configs/queries.yaml`), task predicates, query-derived `UsageStats`,
-  `ExpectedSkillSolver` / `KeywordRetrievalSolver` / `NoOpSolver`, downstream scoring, and
-  report artifacts. CLI: `viscurate build-queries`, `viscurate run-downstream`, and
-  `viscurate curate --queries-dir`.
-- **Exit (met as machinery):** deterministic split-disjoint query manifests; clean L0 references
-  regenerate and the expected-skill solver succeeds; deliberately corrupted skills degrade
-  downstream success; untrusted skills remain blocked; reports write traceable artifacts. **7 tests;
-  focused source gate green.**
-- **Carried forward:** this is the task/usage/evaluator substrate. Interpreting pollution curves
-  still waits on the Phase-4 go/no-go and Phase-8 study runs.
+### Phase 7 — Query stream + downstream eval ⬜
+- **Build:** `Query` objects (instruction, input, reference, predicates), the solver agent,
+  correctness scoring (perceptual match + task predicates), stratified **disjoint** dev/test
+  (no probe image appears in any query; splits disjoint in skills and queries).
+- **Exit:** solver fails on some dev queries with the noisy library, succeeds more on a
+  curated one; Dead-Skill queries have zero retrieval.
 
-### Phase 8 — Metrics, baselines, studies ✅ (aggregation machinery complete)
-- **Built** (`src/viscurate/studies/`): seed-level `StudyPoint` rows; ideal-action scoring for
-  curation logs (direction-sensitive `merge` / `parameterize`, `modify` / `remove` by primary);
-  intrinsic curation score; mean ± 95% CI aggregation across seeds; Pareto-front extraction over
-  downstream success ↑, compression ↑, action cost ↓; construct-validity Pearson/Spearman
-  correlation; output-vs-text gating ablation matched by `(ρ, composition, seed, mode)`; Phase-4
-  equivalence-track summaries for Study 1; JSON/CSV row loaders; report writer for
-  `report.md`, CSV/JSON tables, manifest, and optional Pareto figure. CLI:
-  `viscurate phase8 --points <points.json|points.csv>`.
-- **Exit (met as machinery):** action logs score against `ideal_actions.json`; CIs, Pareto front,
-  construct-validity correlation, and vision-matters deltas are deterministic; report artifacts are
-  manifest-backed and the CLI refuses empty input. **5 tests; focused source gate green.**
-- **Carried forward:** this is the aggregation/report layer, not the completed study grid. Real
-  Phase-8 numbers still require the Phase-4 divergence go/no-go and actual runs across the
-  `(ρ, c, seed, method)` grid.
+### Phase 8 — Metrics, baselines, studies ⬜
+- **Build & run:** all baselines (incl. oracle as upper-bound only) and the four studies —
+  (1) Equivalence F1 per judge track, (2) Curation Pareto (success ↑, compression, action
+  cost) with CIs, (3) Construct validity (intrinsic score vs downstream success),
+  (4) Vision-matters ablation (text-cosine gating vs output gating).
+- **Exit:** every number from a real run with a manifest; Pareto figure shows all methods;
+  mean ± CI across seeds.
 
-### Phase 9 — Experiment runner + paper artifacts ✅ (machinery complete)
-- **Built** (`src/viscurate/experiments/`): per-experiment YAML config
-  (`configs/phase9.yaml`), run manifest writer (git SHA, seed, package/model versions, config
-  hashes, battery/query/oracle/result manifest hashes, thresholds), `reproduce.sh` generation,
-  a realism audit over probe licenses, query/probe disjointness, corruption-grid completeness,
-  Phase-4 benchmark artifacts, and Phase-8 study artifacts, plus paper table/figure generation
-  when supplied real `StudyPoint` rows. CLI: `viscurate phase9`.
-- **Exit (met as machinery):** every generated paper-artifact bundle traces to manifests; missing
-  empirical runs are marked `pending`, not filled; licenses are audited from the probe manifest;
-  README has the one-command repro entry. **Focused Phase-9 gate green.**
-- **Carried forward:** real paper numbers still require the Phase-4 divergence go/no-go run and
-  actual `(ρ, composition, seed, mode, method)` study rows.
+### Phase 9 — Experiment runner + paper artifacts ⬜
+- **Build:** per-experiment YAML configs (git SHA, seeds, model versions, battery SHA,
+  thresholds), run manifests, one-command table/figure generators, realism-audit report.
+- **Exit:** every paper number traces to a manifest; no placeholders; licenses documented;
+  one-command repro in README.
 
 ---
 
@@ -350,37 +290,23 @@ configs/default.yaml   tests/   docs/phase_summaries.md   ClaudeCode.md
 
 ```
 0 ─► 1 ─► 2 ─► 3 ─► 4 ⚠️ ─► 5 ─► 6 ─► 7 ─► 8 ─► 9
-                    │              ▲
-         (Phase 4 is the gate)     └─ Phase 5 machinery may be built ahead of the gate
-                                       (it fabricates nothing); the runs that USE L_ρ
-                                       (7–8) still wait for divergence to be confirmed.
+                    │
+         (Phase 4 is the gate: do not build 5–9 until divergence is confirmed)
 ```
 - Phases 0–4 are **inference-light / dependency-light** until Phase 3 pulls in torch+LPIPS+
-  DINO; **Phase 5 is ML-free again** (pure numpy/pydantic). Pilot everything small (100 skills,
-  ~200 probes) before scaling via config knobs.
+  DINO. Pilot everything small (100 skills, ~200 probes) before scaling via config knobs.
 - The agent/LLM work (Phase 6) is where latency, not the GPU, dominates.
 
 ## 4. Immediate next step
 
 Phases 0–3 are complete (100 skills; a 177-probe license-clean battery + frozen oracle; the
-full output-grounded equivalence engine). Phase 4's **machinery** is complete; Phase 5 (the
-corruption generator + per-type QA + the `(ρ, c, seed, mode)` grid), Phase 6 (the curation
-environment + verifier gating + sandbox boundary + agent adapter), Phase 7 (query stream +
-downstream evaluator + query-derived usage), and **Phase 8 (study metrics, aggregation, Pareto /
-correlation / ablation reporting)** are now built and tested as machinery.
-
-The blocking item remains the **Phase-4 divergence go/no-go**: the real LPIPS/DINO/CLIP run on
-the H200 (`viscurate run-benchmark --device cuda --clip --calibrate`) to confirm the premise —
-text judge merges `blur_gaussian`/`blur_box`; output judge says DISTINCT. **Phases 5–8 were
-built ahead of this gate because they are machinery that fabricates nothing** (corruption
-generation, curation, query construction/evaluation, and study aggregation code), but the *study
-runs* that consume them must wait for divergence to be confirmed. If text and output judges do not
-diverge, stop and understand why before running the curation studies.
-
-Phase 9 is now built as machinery: `viscurate phase9 -c configs/phase9.yaml -o results/phase9`
-writes the manifest-backed reproducibility bundle, realism audit, and paper artifacts when real
-seed-level rows are supplied. The blocking item remains the Phase-4 divergence go/no-go before
-interpreting or publishing study curves.
+full output-grounded equivalence engine — comparators, taxonomy, subsumption, COMPLEMENTARY,
+candidate generation, and the calibration procedure; 178 tests green). The next step is
+**Phase 4 — the equivalence benchmark and the divergence go/no-go checkpoint**: run the engine
++ the text baselines (name-match, embedding-cosine, LLM-on-descriptions) over candidate pairs,
+**human-verify** the SEMANTIC / SUBSUMPTION slice, **calibrate the thresholds on that labeled
+split** (the procedure exists; the numbers do not), and produce the divergence table + figure.
+If text and output judges do not diverge, stop and understand why before building curation.
 
 ## 5. Non-negotiables carried through every phase
 
@@ -403,6 +329,5 @@ summaries — but they affect Phase 2+:
 2. **16-bit / palettized** — default: include as a small mandatory slice.
 3. **Citations** (`SkillClone`, `SkillBrew`) — verify against arXiv before leaning on them.
 4. **Annotator pool** for the SEMANTIC slice (size, review) — affects κ.
-5. **Agent action/compute budget** — closed as a config knob (`curation.budget`, default 50);
-   still tune per Phase-8 run manifest.
+5. **Agent action/compute budget** per curation episode — caps the Pareto action-cost axis.
 6. **Generative skills** — confirmed out of v1; confirm they stay out for the full CVPR pass.

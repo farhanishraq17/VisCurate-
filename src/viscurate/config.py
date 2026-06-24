@@ -24,6 +24,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 __all__ = [
     "Config",
+    "CurationConfig",
+    "DownstreamConfig",
     "ExecutorConfig",
     "LoggingConfig",
     "PathsConfig",
@@ -48,6 +50,7 @@ class RunConfig(_Strict):
 class PathsConfig(_Strict):
     data_dir: Path = Path("data")
     probe_dir: Path = Path("data/probe_images")
+    query_dir: Path = Path("data/queries")
     oracle_dir: Path = Path("data/oracle")
     results_dir: Path = Path("results")
     configs_dir: Path = Path("configs")
@@ -97,12 +100,37 @@ class ThresholdConfig(_Strict):
         return self
 
 
+class CurationConfig(_Strict):
+    """The curation episode budget + usage gate (CLAUDE.md Phase 6, roadmap open item 5).
+
+    ``budget`` caps the agent's actions per episode — the action-cost axis of the Pareto front
+    (CLAUDE.md §3.4). ``usage_fold_threshold`` is the usage at/above which folding a skill away
+    (parameterize) is flagged as losing a used skill (CLAUDE.md §3.5.7).
+    """
+
+    budget: int = Field(default=50, gt=0)
+    usage_fold_threshold: int = Field(default=1, ge=0)
+
+
+class DownstreamConfig(_Strict):
+    """Phase-7 query generation + query-derived usage knobs."""
+
+    query_seed: int = 2026
+    query_size: int = Field(default=96, gt=8)
+    dev_repeats: int = Field(default=1, ge=1)
+    test_repeats: int = Field(default=1, ge=1)
+    usage_base_count: int = Field(default=20, ge=1)
+    usage_zipf_alpha: float = Field(default=1.2, ge=0)
+
+
 class Config(_Strict):
     run: RunConfig = RunConfig()
     paths: PathsConfig = PathsConfig()
     executor: ExecutorConfig = ExecutorConfig()
     logging: LoggingConfig = LoggingConfig()
     thresholds: ThresholdConfig = ThresholdConfig()
+    curation: CurationConfig = CurationConfig()
+    downstream: DownstreamConfig = DownstreamConfig()
 
     @classmethod
     def from_mapping(cls, data: dict[str, Any] | None) -> Config:

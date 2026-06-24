@@ -19,6 +19,8 @@ htmlcov/
 # Probe images and oracle outputs are regenerated from seeds; never committed raw.
 data/probe_images/
 data/oracle/
+# Corrupted libraries L_ρ — regenerated deterministically from (L0 + corruption log).
+data/corruption/
 results/
 *.npz
 *.npy
