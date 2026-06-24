@@ -218,17 +218,26 @@ configs/default.yaml   tests/   docs/phase_summaries.md   ClaudeCode.md
   oracle frozen clean — 17,700 pairs, all ok, spot-verify reproduces.**
 - **Deferred to Phase 3:** parameter sweeps (the matched-grid inputs the comparators consume).
 
-### Phase 3 — Comparators + taxonomy ⬜  *(the `[ml]` extra lands here)*
-- **Build:** EXACT (hash + ε), PERCEPTUAL (LPIPS + SSIM cross-check), SEMANTIC
-  (DINO ViT-B/16, CLIP optional), directional **subsumption search**, the hierarchical
-  stop-at-first taxonomy engine with the **UNCERTAIN abstention band**, output-based
+### Phase 3 — Comparators + taxonomy ✅  *(the `[ml]` extra lands here)*
+- **Built** (`src/viscurate/equivalence/`): EXACT (hash + ε), PERCEPTUAL (LPIPS + SSIM
+  cross-check), SEMANTIC (DINO ViT-B/16, CLIP optional), directional **subsumption search**,
+  the hierarchical stop-at-first taxonomy with the **UNCERTAIN abstention band**, output-based
   candidate generation (fingerprints — *never* description-based), and the COMPLEMENTARY
-  detector (non-triviality + approximate commutation, executing compositions).
-- **Calibration:** ε, τ_perc, τ_sem, δ calibrated on the human-labeled validation split for
-  **precision on non-equivalence**, cluster-disjoint from test, written to config with date +
-  split hash. No threshold is a literal in code.
-- **Exit:** hand-built EXACT/PERCEPTUAL/DISTINCT synthetic pairs classified correctly;
-  thresholds calibrated and recorded; LPIPS+DINO fit in 6 GB (load one at a time).
+  detector (non-triviality + approximate commutation, executing compositions). ML backends sit
+  behind protocols with **lazy `torch` imports** (package imports without `[ml]`) and load
+  **one model at a time**. The text-blind boundary is enforced *by type*: `classify` is handed a
+  `ComparatorView` + an `OutputProvider`, never a `Skill`/`description`.
+- **Calibration:** the *procedure* is implemented (`calibrate.py`) — τ_perc, τ_sem, δ fit to
+  **precision on non-equivalence** subject to a recall floor, written to config with date +
+  split hash. No numbers shipped: the labeled split is produced in Phase 4, so thresholds stay
+  `calibrated=false` placeholders. No threshold is a literal in code.
+- **Exit (met):** hand-built EXACT/PERCEPTUAL/DISTINCT pairs classify correctly; SUBSUMPTION /
+  COMPLEMENTARY / SEMANTIC / UNCERTAIN each exercised; matched-sweep worst-case blocks a false
+  `blur_gaussian`/`blur_box` merge; LPIPS+DINO+CLIP load and give sane distances (one model at a
+  time; GPU 6 GB budget met by design, CPU-verified here). **178 tests green.**
+- **Carried to Phase 4:** thresholds are uncalibrated; the commutation COMPLEMENTARY test is
+  necessary-not-sufficient (two linear filters commute); center-crop subsumption is exact only
+  on even-sided probes (PERCEPTUAL tolerance absorbs the rest). See `docs/phase_summaries.md`.
 
 ### Phase 4 — Equivalence benchmark ⚠️  **(first go/no-go checkpoint)**
 - **Build:** candidate pairs incl. hard cases; auto-labels; the text baselines
@@ -290,12 +299,14 @@ configs/default.yaml   tests/   docs/phase_summaries.md   ClaudeCode.md
 
 ## 4. Immediate next step
 
-Phases 0–2 are complete (100 skills; a 177-probe license-clean battery + frozen oracle; 157
-tests green). The next step is **Phase 3** — the output-grounded comparators (EXACT / PERCEPTUAL
-LPIPS+SSIM / SEMANTIC DINO+CLIP), directional subsumption search, the stop-at-first taxonomy
-with the UNCERTAIN abstention band, and threshold calibration. This is where the optional
-`[ml]` extra (torch is already present; lpips / timm / open-clip / scikit-image install here)
-lands, leading into the Phase-4 divergence go/no-go checkpoint.
+Phases 0–3 are complete (100 skills; a 177-probe license-clean battery + frozen oracle; the
+full output-grounded equivalence engine — comparators, taxonomy, subsumption, COMPLEMENTARY,
+candidate generation, and the calibration procedure; 178 tests green). The next step is
+**Phase 4 — the equivalence benchmark and the divergence go/no-go checkpoint**: run the engine
++ the text baselines (name-match, embedding-cosine, LLM-on-descriptions) over candidate pairs,
+**human-verify** the SEMANTIC / SUBSUMPTION slice, **calibrate the thresholds on that labeled
+split** (the procedure exists; the numbers do not), and produce the divergence table + figure.
+If text and output judges do not diverge, stop and understand why before building curation.
 
 ## 5. Non-negotiables carried through every phase
 

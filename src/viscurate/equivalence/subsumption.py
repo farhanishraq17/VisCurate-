@@ -30,6 +30,8 @@ class SubsumptionResult:
     spec_id: str = ""  # the specialization (the subsumed skill)
     gen_id: str = ""  # the generalization (the subsuming skill)
     binding_map: tuple[tuple[str, str], ...] = ()  # (spec params_key → gen params_key)
+    mutual: bool = False  # both directions hold → EXACT/PERCEPTUAL, not subsumption
+    pixel_exact: bool = False  # every certifying match was pixel-exact (EXACT vs PERCEPTUAL)
 
 
 def outputs_match(
@@ -76,30 +78,49 @@ def _all_reproduced(
     perceptual: PerceptualBackend | None,
     ssim_floor: float | None,
     seed: int | None,
-) -> tuple[bool, list[tuple[str, str]]]:
-    """Is every ``spec`` binding reproduced by some ``gen`` binding? Returns (ok, binding map)."""
+) -> tuple[bool, list[tuple[str, str]], bool]:
+    """Is every ``spec`` binding reproduced by some ``gen`` binding?
+
+    Returns ``(ok, binding_map, all_pixel_exact)``. A pixel-exact match is preferred over a
+    perceptual one, so EXACT and PERCEPTUAL can be told apart by the caller.
+    """
     import json
 
     mapping: list[tuple[str, str]] = []
+    all_exact = True
     for sp in spec_grid:
         spec_out = provider.outputs(spec_id, sp, seed=seed)
         found = False
         for gp in gen_grid:
             gen_out = provider.outputs(gen_id, gp, seed=seed)
-            if outputs_match(
+            exact = outputs_match(
                 spec_out,
                 gen_out,
                 epsilon=epsilon,
                 tau_perceptual=tau_perceptual,
-                perceptual=perceptual,
-                ssim_floor=ssim_floor,
-            ):
+                perceptual=None,
+                ssim_floor=None,
+            )
+            perc = (
+                not exact
+                and perceptual is not None
+                and outputs_match(
+                    spec_out,
+                    gen_out,
+                    epsilon=epsilon,
+                    tau_perceptual=tau_perceptual,
+                    perceptual=perceptual,
+                    ssim_floor=ssim_floor,
+                )
+            )
+            if exact or perc:
                 mapping.append((json.dumps(sp, sort_keys=True), json.dumps(gp, sort_keys=True)))
+                all_exact = all_exact and exact
                 found = True
                 break
         if not found:
-            return False, []
-    return True, mapping
+            return False, [], False
+    return True, mapping, all_exact
 
 
 def subsumption_search(
@@ -115,8 +136,8 @@ def subsumption_search(
     ssim_floor: float | None = None,
     seed: int | None = None,
 ) -> SubsumptionResult:
-    """Test both directions; certify the one that holds exclusively (else ``NONE``)."""
-    a_sub_b, map_ab = _all_reproduced(
+    """Test both directions; certify the one that holds exclusively, or flag mutual/none."""
+    a_sub_b, map_ab, exact_ab = _all_reproduced(
         view_a.id,
         grid_a,
         view_b.id,
@@ -128,7 +149,7 @@ def subsumption_search(
         ssim_floor=ssim_floor,
         seed=seed,
     )
-    b_sub_a, map_ba = _all_reproduced(
+    b_sub_a, map_ba, exact_ba = _all_reproduced(
         view_b.id,
         grid_b,
         view_a.id,
@@ -140,8 +161,10 @@ def subsumption_search(
         ssim_floor=ssim_floor,
         seed=seed,
     )
-    if a_sub_b and not b_sub_a:  # A ⊑ B : B is the generalization
+    if a_sub_b and b_sub_a:  # mutual reproduction → EXACT/PERCEPTUAL, not subsumption
+        return SubsumptionResult(Direction.NONE, mutual=True, pixel_exact=exact_ab and exact_ba)
+    if a_sub_b:  # A ⊑ B : B is the generalization
         return SubsumptionResult(Direction.B_SUBSUMES_A, view_a.id, view_b.id, tuple(map_ab))
-    if b_sub_a and not a_sub_b:  # B ⊑ A : A is the generalization
+    if b_sub_a:  # B ⊑ A : A is the generalization
         return SubsumptionResult(Direction.A_SUBSUMES_B, view_b.id, view_a.id, tuple(map_ba))
     return SubsumptionResult(Direction.NONE)

@@ -165,72 +165,94 @@ def classify(
     tau_s = thresholds.semantic_dino
     delta = thresholds.abstention_delta
     sweep = _sweep(alignment, provider, a_id, b_id)
-
-    # -- Stage 1: EXACT -------------------------------------------------------------
     pix, all_hash = _sweep_pixel_worst(a_id, b_id, sweep, provider, seed)
-    if all_hash and pix.value != float("inf"):
-        return RelationResult(
-            Relation.EXACT,
-            reason="hash-identical on every matched probe",
-            distances={"l_inf": 0.0},
-            alternatives=("merge",),
-        )
-    if pix.value <= eps:
-        return RelationResult(
-            Relation.EXACT,
-            reason=f"worst-case L∞ {pix.value:.5f} ≤ ε ({eps:.5f})",
-            distances={"l_inf": pix.value},
-            worst_probe=pix.probe_id,
-            alternatives=("merge",),
-        )
 
-    # -- Stage 2: PERCEPTUAL --------------------------------------------------------
-    if perceptual is not None:
-        lp, ss = _sweep_perceptual_worst(a_id, b_id, sweep, provider, perceptual, seed)
-        dist = {"l_inf": pix.value, "lpips": lp.value, "ssim_dist": ss.value}
-        if lp.value <= tau_p * (1.0 - delta):
-            if ss.value <= thresholds.perceptual_ssim:
+    # EXACT/PERCEPTUAL on a single default binding is authoritative only when the pair shares a
+    # real matched-sweep axis (symmetric, swept worst-case) OR both skills are parameter-free
+    # (the default *is* the whole output space). Otherwise two parameterized skills that merely
+    # coincide at their defaults must NOT be called EXACT — the grid search decides instead.
+    has_axis = alignment is not None and bool(alignment.matched_sweep(a_id, b_id))
+    both_fixed = not provider.default_params(a_id) and not provider.default_params(b_id)
+
+    if has_axis or both_fixed:
+        # -- Stage 1: EXACT ---------------------------------------------------------
+        if all_hash and pix.value != float("inf"):
+            return RelationResult(
+                Relation.EXACT,
+                reason="hash-identical on every matched probe",
+                distances={"l_inf": 0.0},
+                alternatives=("merge",),
+            )
+        if pix.value <= eps:
+            return RelationResult(
+                Relation.EXACT,
+                reason=f"worst-case L∞ {pix.value:.5f} ≤ ε ({eps:.5f})",
+                distances={"l_inf": pix.value},
+                worst_probe=pix.probe_id,
+                alternatives=("merge",),
+            )
+        # -- Stage 2: PERCEPTUAL ----------------------------------------------------
+        if perceptual is not None:
+            lp, ss = _sweep_perceptual_worst(a_id, b_id, sweep, provider, perceptual, seed)
+            dist = {"l_inf": pix.value, "lpips": lp.value, "ssim_dist": ss.value}
+            if lp.value <= tau_p * (1.0 - delta):
+                if ss.value <= thresholds.perceptual_ssim:
+                    return RelationResult(
+                        Relation.PERCEPTUAL,
+                        reason=f"worst-case LPIPS {lp.value:.4f} ≤ τ_perc, SSIM floor ok",
+                        distances=dist,
+                        worst_probe=lp.probe_id,
+                        alternatives=("merge", "parameterize"),
+                    )
+                # below the LPIPS band but fails the SSIM floor → LPIPS blind spot; fall through.
+            elif lp.value <= tau_p * (1.0 + delta):
                 return RelationResult(
-                    Relation.PERCEPTUAL,
-                    reason=f"worst-case LPIPS {lp.value:.4f} ≤ τ_perc, SSIM floor ok",
+                    Relation.UNCERTAIN,
+                    reason=f"LPIPS {lp.value:.4f} in abstention band around τ_perc={tau_p}",
                     distances=dist,
                     worst_probe=lp.probe_id,
-                    alternatives=("merge", "parameterize"),
+                    uncertain_about=Relation.PERCEPTUAL,
                 )
-            # below the LPIPS band but fails the SSIM floor → LPIPS blind spot; fall through.
-        elif lp.value <= tau_p * (1.0 + delta):
-            return RelationResult(
-                Relation.UNCERTAIN,
-                reason=f"LPIPS {lp.value:.4f} in abstention band around τ_perc={tau_p}",
-                distances=dist,
-                worst_probe=lp.probe_id,
-                uncertain_about=Relation.PERCEPTUAL,
-            )
-
-    # -- Stage 3: SUBSUMPTION (directional) -----------------------------------------
-    grid_a = _subsumption_grid(alignment, provider, a_id)
-    grid_b = _subsumption_grid(alignment, provider, b_id)
-    sub = subsumption_search(
-        view_a,
-        view_b,
-        provider,
-        grid_a=grid_a,
-        grid_b=grid_b,
-        epsilon=eps,
-        tau_perceptual=tau_p,
-        perceptual=perceptual,
-        ssim_floor=thresholds.perceptual_ssim if perceptual is not None else None,
-        seed=seed,
-    )
-    if sub.direction is not Direction.NONE:
-        rel = "⊑" if sub.direction is Direction.B_SUBSUMES_A else "⊒"
-        return RelationResult(
-            Relation.SUBSUMPTION,
-            direction=sub.direction,
-            reason=f"{sub.spec_id} {rel} {sub.gen_id} (every specialization binding reproduced)",
-            distances={"l_inf": pix.value},
-            alternatives=("parameterize", "keep_separate"),
+        # Symmetric / fully-characterized pairs do not take the subsumption path.
+    else:
+        # -- Stage 3: parameterized grid search → EXACT/PERCEPTUAL (mutual) or SUBSUMPTION --
+        grid_a = _subsumption_grid(alignment, provider, a_id)
+        grid_b = _subsumption_grid(alignment, provider, b_id)
+        sub = subsumption_search(
+            view_a,
+            view_b,
+            provider,
+            grid_a=grid_a,
+            grid_b=grid_b,
+            epsilon=eps,
+            tau_perceptual=tau_p,
+            perceptual=perceptual,
+            ssim_floor=thresholds.perceptual_ssim if perceptual is not None else None,
+            seed=seed,
         )
+        if sub.mutual:  # mutual reproduction across the grids → equivalence
+            if sub.pixel_exact:
+                return RelationResult(
+                    Relation.EXACT,
+                    reason="mutual reproduction, pixel-exact across grids",
+                    distances={"l_inf": pix.value},
+                    alternatives=("merge",),
+                )
+            return RelationResult(
+                Relation.PERCEPTUAL,
+                reason="mutual reproduction within PERCEPTUAL tolerance across grids",
+                distances={"l_inf": pix.value},
+                alternatives=("merge", "parameterize"),
+            )
+        if sub.direction is not Direction.NONE:
+            rel = "⊑" if sub.direction is Direction.B_SUBSUMES_A else "⊒"
+            return RelationResult(
+                Relation.SUBSUMPTION,
+                direction=sub.direction,
+                reason=f"{sub.spec_id} {rel} {sub.gen_id} (subsumed on every probe)",
+                distances={"l_inf": pix.value},
+                alternatives=("parameterize", "keep_separate"),
+            )
 
     # -- Stage 4: SEMANTIC_PRESERVING -----------------------------------------------
     if semantic is not None:

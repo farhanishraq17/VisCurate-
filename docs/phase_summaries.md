@@ -134,3 +134,97 @@ froze **clean — 17,700 pairs (100 skills × 177 probes), all `ok`, 0 error, 0 
   COCO source URL; finer attribution traces through COCO.
 - Parameter sweeps (the matched-grid inputs for §3.5.2) are deferred to Phase 3, where the
   comparators consume them; the oracle currently freezes skills at their defaults.
+
+---
+
+## Phase 3 — Comparators + taxonomy ✅
+
+The output-grounded equivalence engine: it decides, **from executed outputs alone**, which of
+six relations holds between a pair of skills. All of it lives in the new
+`src/viscurate/equivalence/` package and is the first code to use the optional `[ml]` extra.
+
+**The modality boundary is enforced by type.** Nothing in the package reads a skill's
+`description`. `classify` takes a `ComparatorView` (no `description` attribute) plus an
+`OutputProvider` (yields *outputs*, never a `Skill`). `BatteryEvaluator` is the single trusted
+bridge — it holds skills (with `fn`) and probe arrays internally and executes them, but exposes
+only `outputs()`/`compose_outputs()`/`comparator_view()`/`param_grid()`. A comparator cannot
+reach a description through the typed interface.
+
+**Delivered**
+
+- **`backends.py`** — `PerceptualBackend` / `SemanticBackend` **protocols** and the real
+  `LpipsBackend` (AlexNet), `DinoBackend` (`vit_base_patch16_224.dino`), `ClipBackend`
+  (`ViT-B-32-quickgelu`, `openai`) plus `ssim_distance` (scikit-image) and `cosine_distance`.
+  `torch`/`lpips`/`timm`/`open_clip` are **imported lazily inside constructors**, so the
+  package imports cleanly *without* the `[ml]` extra — only constructing a real backend needs
+  it. Each backend owns **one** model and frees it on `close()` (context manager): the
+  PERCEPTUAL model loads for its stage, frees, then the SEMANTIC model — the 6 GB-GPU
+  one-model-at-a-time discipline (CLAUDE.md D5). Features are batch-extracted.
+- **`compare.py`** — the comparison primitive. Per-probe distances (`pixel`/`lpips`/`dino`)
+  and the **aggregation rule**: worst-case (`max`) for EXACT/PERCEPTUAL (equivalence is
+  universally quantified — one diverging probe is a silent-merge bug), p90 + mean for SEMANTIC.
+  `BatteryEvaluator` caches outputs per `(skill, params, seed)` and can run **compositions**
+  `outer(inner(x))` for the COMPLEMENTARY test.
+- **`param_alignment.py` + `configs/param_alignment.yaml`** — the auditable shared-axis map
+  (never hard-coded). *Symmetric* matched-sweep `axes` (e.g. `blur_gaussian`/`blur_box` over
+  `ksize ∈ {3..21}`) drive the worst-case EXACT/PERCEPTUAL sweep; *asymmetric* `subsumption_grids`
+  supply explicit search grids for a generalizing skill (rotate angles incl. 90°, centered
+  crop boxes, percentile `(0,100)`).
+- **`subsumption.py`** — directional grid search with **early-exit on the first failing probe**;
+  reports `A⊑B`, `B⊑A`, mutual (→ EXACT/PERCEPTUAL), or none (near-miss specializations
+  correctly return none).
+- **`complementary.py`** — COMPLEMENTARY by **non-triviality + approximate commutation**
+  (`D(A(B(x)), B(A(x)))` small), executed on real compositions — never from metadata/family.
+- **`taxonomy.py`** — the stop-at-first pipeline EXACT → PERCEPTUAL → SUBSUMPTION → SEMANTIC →
+  COMPLEMENTARY → DISTINCT with a calibrated **UNCERTAIN abstention band** `[τ(1−δ), τ(1+δ)]`
+  around the PERCEPTUAL/SEMANTIC thresholds. Returns a structured `RelationResult` (relation,
+  direction, deciding distances, worst-case probe, permitted actions) — the actionable
+  rejection reason of CLAUDE.md §3.5.7.
+- **`candidates.py`** — output-based candidate generation: an output fingerprint (perceptual
+  average-hash ‖ mean DINO feature) over a screening sub-battery, nearest-neighbour proposal,
+  **plus same-family pairs and the engineered hard negatives always included**. Output-based by
+  construction, so different-description/same-output redundancy still collides — the redundancy
+  text-based pruning misses.
+- **`calibrate.py`** — the calibration *procedure*: `select_threshold` maximizes recall subject
+  to a precision-on-non-equivalence floor; `calibrate_thresholds` fits τ_perc/τ_sem/δ on a
+  labeled split and **stamps provenance** (split hash + date, `calibrated=True`). It ships **no
+  numbers** — there is no human-labeled split until Phase 4, and inventing one is forbidden.
+
+**Key design decision (a bug the tests caught).** EXACT/PERCEPTUAL on a single default binding
+is authoritative **only** when the pair shares a real matched-sweep axis *or* both skills are
+parameter-free. Two parameterized skills that merely coincide at their defaults (e.g.
+`crop_center_percentage(50%)` ≡ `crop_bounding_box`'s default centered box) must **not** be
+called EXACT — the grid search decides, yielding the correct `crop_center ⊑ crop_bounding_box`
+subsumption.
+
+**Exit criteria (met)** — hand-built EXACT / PERCEPTUAL / DISTINCT synthetic pairs classify
+correctly; SUBSUMPTION (rotate_90 ⊑ rotate_canvas, crop_center ⊑ crop_bbox), COMPLEMENTARY,
+SEMANTIC, and the UNCERTAIN band each exercised; the matched-sweep worst-case **blocks a false
+merge** of `blur_gaussian`/`blur_box`. The calibration procedure is implemented and provenance-
+stamped (thresholds remain `calibrated=false` placeholders pending the Phase-4 labeled split).
+LPIPS+DINO+CLIP load and produce sane distances (real-backend smoke tests, `-m slow`).
+
+**Environment (verified install).** torch `2.10.0+cpu` was already present; the **matched**
+`torchvision==0.25.0+cpu` was installed from the PyTorch CPU index with `--no-deps` (a plain
+PyPI `torchvision` risks dragging in a CUDA torch). Model weights (AlexNet, DINO ViT-B/16, CLIP
+ViT-B/32) are cached under `~/.cache`. mypy was pinned at 3.11 but scikit-image pulls `tifffile`
+(3.12-only `type` syntax) → a `follow_imports = "skip"` override for `skimage`/`tifffile` keeps
+mypy clean without weakening typing elsewhere.
+
+**Honest limitations (carried to Phase 4).**
+
+- **Thresholds are uncalibrated placeholders.** Real labels and calibration land in Phase 4;
+  every reported metric must use a calibrated config (the provenance rule enforces this).
+- **The commutation-based COMPLEMENTARY test is necessary, not sufficient.** Two linear filters
+  (e.g. the two blurs) commute yet are *not* "disjoint aspects"; in the full pipeline they are
+  caught earlier (SEMANTIC) before COMPLEMENTARY, and the residual label is a calibration
+  question. The safety property the tests assert is the robust one: **no false merge**.
+- **Center-crop subsumption is exact only on even-sided probes** (center-crop floors, the
+  fractional bbox rounds); on odd sizes a 1-px offset can appear. The PERCEPTUAL tolerance and
+  the Phase-4 battery/calibration absorb this; it is documented, not hidden.
+- **CPU-only here.** The GPU 6 GB budget is met by design (one model at a time); it is not yet
+  measured on the target RTX 3050.
+
+**Tests:** 21 new (`tests/test_equivalence.py` — 17 fake-backend, deterministic; +
+`tests/test_equivalence_ml.py` — 4 real-backend smoke, marked `slow`). Full gate green: **178
+tests, ruff + ruff-format + mypy --strict**.

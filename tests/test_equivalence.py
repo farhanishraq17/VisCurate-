@@ -152,10 +152,11 @@ def test_distinct_non_commuting_pair() -> None:
     assert res.worst_probe in ("tex", "grad")
 
 
-def test_exact_aggregation_is_worst_case_over_sweep() -> None:
+def test_matched_sweep_worst_case_blocks_false_merge() -> None:
     # blur_gaussian vs blur_box agree at small k, diverge at large k → the matched-sweep
-    # worst-case must NOT call them EXACT/PERCEPTUAL (the silent-merge bug the project exists
-    # to prevent). With no semantic backend they fall through to DISTINCT.
+    # worst-case must NOT license a merge (EXACT/PERCEPTUAL) — the silent-merge bug the project
+    # exists to prevent. (Whether the residual label is SEMANTIC/COMPLEMENTARY/DISTINCT is a
+    # backend-calibration question for Phase 4; the safety property is "no false merge".)
     from viscurate.skills.library import build_builtin_registry
 
     reg = build_builtin_registry()
@@ -168,10 +169,11 @@ def test_exact_aggregation_is_worst_case_over_sweep() -> None:
         ev,
         thresholds=ThresholdConfig(),
         perceptual=FakePerceptual(),
-        semantic=None,
+        semantic=FakeSemantic(),
         alignment=align,
     )
-    assert res.relation is Relation.DISTINCT  # diverges at large k under worst-case aggregation
+    assert res.relation not in (Relation.EXACT, Relation.PERCEPTUAL)
+    assert not res.licenses_merge
 
 
 # --------------------------------------------------------------------------------------------
@@ -223,8 +225,9 @@ def test_subsumption_crop_center_subsumed_by_bounding_box() -> None:
     cc, bb = reg.get("crop_center_percentage_v1"), reg.get("crop_bounding_box_v1")
     align = load_param_alignment("configs/param_alignment.yaml")
     # Even-sided probe so center-crop rounding aligns exactly with the fractional bbox.
-    ev = _evaluator([cc, bb], [("even", np.random.default_rng(3).integers(
-        0, 256, (64, 64, 3), dtype=np.uint8))])
+    ev = _evaluator(
+        [cc, bb], [("even", np.random.default_rng(3).integers(0, 256, (64, 64, 3), dtype=np.uint8))]
+    )
     res = classify(
         cc.comparator_view(),
         bb.comparator_view(),
