@@ -80,7 +80,8 @@ def _to_float01(img: npt.NDArray[Any]) -> NDArrayF:
         # Unusual integer dtype: fall back to its positive range.
         info = np.iinfo(img.dtype)
         denom = float(max(info.max, 1))
-        return np.clip(img.astype(np.float32) / denom, 0.0, 1.0)
+        scaled = np.clip(img.astype(np.float32) / denom, 0.0, 1.0)
+        return np.asarray(scaled, dtype=np.float32)
     raise TypeError(f"unsupported image dtype for canonicalization: {img.dtype}")
 
 

@@ -79,7 +79,11 @@ ignore = [
 # Types — strict on our code, lenient on untyped third-party libs.
 # ---------------------------------------------------------------------------
 [tool.mypy]
-python_version = "3.11"
+# Analysis target is 3.12 (not the 3.11 runtime floor): numpy>=2.3 ships PEP 695 `type`
+# statements in its stubs, which mypy only parses when targeting >=3.12. Runtime 3.11
+# compatibility is still enforced by ruff (`target-version = "py311"`) and the pytest 3.11
+# CI matrix leg; we just type-check against a newer target.
+python_version = "3.12"
 plugins = ["pydantic.mypy"]
 strict = true
 warn_unused_configs = true
@@ -90,8 +94,11 @@ no_implicit_optional = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-# Third-party libs without (complete) type stubs. Our boundary code is still typed.
-module = ["cv2", "cv2.*", "structlog", "structlog.*", "lpips", "timm", "timm.*", "open_clip", "PIL", "PIL.*"]
+# Third-party libs without (complete) type stubs, plus the optional `[ml]` extra. `torch` is
+# listed so a CI job *without* `[ml]` installed does not error on the missing import; when
+# torch IS installed (local dev) `ignore_missing_imports` is a no-op and its real stubs are
+# used, so torch calls in `equivalence/backends.py` are still fully type-checked.
+module = ["cv2", "cv2.*", "structlog", "structlog.*", "lpips", "timm", "timm.*", "open_clip", "PIL", "PIL.*", "torch", "torch.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
