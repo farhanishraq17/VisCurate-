@@ -95,6 +95,7 @@ def run_downstream(
     perceptual: PerceptualBackend | None = None,
     seed: int = 0,
     splits: Iterable[str] | None = None,
+    allow_untrusted: bool = False,
     meta: dict[str, Any] | None = None,
 ) -> DownstreamResult:
     """Evaluate ``solver`` against ``manifest`` using ``registry`` as the available library."""
@@ -115,6 +116,7 @@ def run_downstream(
             plan,
             input_image,
             seed=sm.child_seed("solve", q.query_id) & 0xFFFF_FFFF,
+            allow_untrusted=allow_untrusted,
         )
         if not execution.ok or execution.output is None:
             scores.append(

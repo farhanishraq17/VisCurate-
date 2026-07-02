@@ -299,6 +299,7 @@ def classify(
             distances={
                 "commute_linf": comp.commute_linf,
                 "commute_lpips": comp.commute_lpips,
+                "effect_corr": comp.effect_corr,
                 **carry,
             },
             worst_probe=comp.worst_probe,

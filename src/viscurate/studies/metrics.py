@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import random
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -186,8 +187,27 @@ class EquivalenceTrackSummary(_Frozen):
     note: str = ""
 
 
-def summarize(values: Sequence[float]) -> SummaryStats:
-    """Return mean/std/95% CI; an empty input is a zero-row summary."""
+def _bootstrap_interval(values: Sequence[float], *, samples: int, seed: int) -> tuple[float, float]:
+    rng = random.Random(seed)
+    n = len(values)
+    means: list[float] = []
+    for _ in range(max(1, samples)):
+        draw = [values[rng.randrange(n)] for _ in range(n)]
+        means.append(sum(draw) / n)
+    means.sort()
+    lo = means[int(0.025 * (len(means) - 1))]
+    hi = means[int(0.975 * (len(means) - 1))]
+    return lo, hi
+
+
+def summarize(
+    values: Sequence[float],
+    *,
+    ci_method: str = "normal",
+    bootstrap_samples: int = 2000,
+    seed: int = 0,
+) -> SummaryStats:
+    """Return mean/std/95% CI; supports normal approximation or deterministic bootstrap."""
     finite = [float(v) for v in values if math.isfinite(float(v))]
     n = len(finite)
     if n == 0:
@@ -198,7 +218,15 @@ def summarize(values: Sequence[float]) -> SummaryStats:
         half = 0.0
     else:
         std = math.sqrt(sum((v - mean) ** 2 for v in finite) / (n - 1))
-        half = 1.96 * std / math.sqrt(n)
+        if ci_method == "normal":
+            half = 1.96 * std / math.sqrt(n)
+            return SummaryStats(
+                n=n, mean=mean, std=std, ci95_low=mean - half, ci95_high=mean + half
+            )
+        if ci_method == "bootstrap":
+            lo, hi = _bootstrap_interval(finite, samples=bootstrap_samples, seed=seed)
+            return SummaryStats(n=n, mean=mean, std=std, ci95_low=lo, ci95_high=hi)
+        raise ValueError(f"unknown ci_method: {ci_method!r}")
     return SummaryStats(n=n, mean=mean, std=std, ci95_low=mean - half, ci95_high=mean + half)
 
 
@@ -329,15 +357,22 @@ def study_point_from_results(
     )
 
 
-def aggregate_points(points: Sequence[StudyPoint]) -> list[AggregateRow]:
+def aggregate_points(
+    points: Sequence[StudyPoint],
+    *,
+    ci_method: str = "normal",
+    bootstrap_samples: int = 2000,
+    seed: int = 0,
+) -> list[AggregateRow]:
     """Aggregate study points by ``(method, gate, rho, composition, mode)``."""
     groups: dict[tuple[str, str, float, str, str], list[StudyPoint]] = {}
     for point in points:
         groups.setdefault(point.group_key, []).append(point)
 
     rows: list[AggregateRow] = []
-    for (method, gate, rho, composition, mode), group in sorted(groups.items()):
+    for i, ((method, gate, rho, composition, mode), group) in enumerate(sorted(groups.items())):
         action_f1_values = [p.action_f1 for p in group if p.action_f1 is not None]
+        group_seed = seed + i * 17
         rows.append(
             AggregateRow(
                 method=method,
@@ -346,11 +381,38 @@ def aggregate_points(points: Sequence[StudyPoint]) -> list[AggregateRow]:
                 composition=composition,
                 mode=mode,
                 n=len(group),
-                success=summarize([p.downstream_success for p in group]),
-                compression=summarize([float(p.compression) for p in group]),
-                action_cost=summarize([float(p.action_cost) for p in group]),
-                intrinsic_score=summarize([p.intrinsic_score for p in group]),
-                action_f1=summarize(action_f1_values) if action_f1_values else None,
+                success=summarize(
+                    [p.downstream_success for p in group],
+                    ci_method=ci_method,
+                    bootstrap_samples=bootstrap_samples,
+                    seed=group_seed,
+                ),
+                compression=summarize(
+                    [float(p.compression) for p in group],
+                    ci_method=ci_method,
+                    bootstrap_samples=bootstrap_samples,
+                    seed=group_seed,
+                ),
+                action_cost=summarize(
+                    [float(p.action_cost) for p in group],
+                    ci_method=ci_method,
+                    bootstrap_samples=bootstrap_samples,
+                    seed=group_seed,
+                ),
+                intrinsic_score=summarize(
+                    [p.intrinsic_score for p in group],
+                    ci_method=ci_method,
+                    bootstrap_samples=bootstrap_samples,
+                    seed=group_seed,
+                ),
+                action_f1=summarize(
+                    action_f1_values,
+                    ci_method=ci_method,
+                    bootstrap_samples=bootstrap_samples,
+                    seed=group_seed,
+                )
+                if action_f1_values
+                else None,
             )
         )
     return rows
@@ -447,7 +509,13 @@ def _mean_point(points: Sequence[StudyPoint]) -> tuple[float, float, float]:
 
 
 def vision_matters_ablation(
-    points: Sequence[StudyPoint], *, output_gate: str = "output", text_gate: str = "text"
+    points: Sequence[StudyPoint],
+    *,
+    output_gate: str = "output",
+    text_gate: str = "text",
+    ci_method: str = "normal",
+    bootstrap_samples: int = 2000,
+    seed: int = 0,
 ) -> AblationResult:
     """Compare matched output-gated and text-gated curation runs."""
     output: dict[tuple[float, str, int, str], list[StudyPoint]] = {}
@@ -484,9 +552,24 @@ def vision_matters_ablation(
         output_gate=output_gate,
         text_gate=text_gate,
         deltas=tuple(deltas),
-        success_delta=summarize([d.success_delta for d in deltas]),
-        compression_delta=summarize([d.compression_delta for d in deltas]),
-        action_cost_delta=summarize([d.action_cost_delta for d in deltas]),
+        success_delta=summarize(
+            [d.success_delta for d in deltas],
+            ci_method=ci_method,
+            bootstrap_samples=bootstrap_samples,
+            seed=seed,
+        ),
+        compression_delta=summarize(
+            [d.compression_delta for d in deltas],
+            ci_method=ci_method,
+            bootstrap_samples=bootstrap_samples,
+            seed=seed,
+        ),
+        action_cost_delta=summarize(
+            [d.action_cost_delta for d in deltas],
+            ci_method=ci_method,
+            bootstrap_samples=bootstrap_samples,
+            seed=seed,
+        ),
     )
 
 

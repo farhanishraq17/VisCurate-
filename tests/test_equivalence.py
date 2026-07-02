@@ -105,6 +105,37 @@ def _evaluator(skills: list[Skill], battery: list[tuple[str, Image]]) -> Battery
     return BatteryEvaluator(skills, battery)
 
 
+def test_bounded_output_cache_evicts_but_preserves_results() -> None:
+    # The output cache is a compute optimization: bounding it (LRU) must cap memory without
+    # changing any result — a cache miss just recomputes the (deterministic) output.
+    skills = [
+        _skill("s_flip", _flip),
+        _skill("s_inv", _invert),
+        _skill("s_add", _add(3)),
+        _skill("s_mul", _mul(2.0)),
+        _skill("s_id", _ident),
+    ]
+    battery = _textured_battery()
+    ref = BatteryEvaluator(skills, battery)  # unbounded reference
+    bounded = BatteryEvaluator(skills, battery, max_cache_entries=2)
+
+    for s in skills:
+        want = ref.outputs(s.id)
+        got = bounded.outputs(s.id)
+        assert got.probe_ids == want.probe_ids
+        for p in got.probe_ids:
+            assert np.array_equal(got.raw[p], want.raw[p])  # identical despite eviction
+        assert len(bounded._cache) <= 2  # never exceeds the LRU bound
+
+    # 5 distinct skills through a size-2 cache ⇒ eviction actually happened…
+    assert len(bounded._cache) == 2
+    # …and re-querying an evicted skill recomputes the same result (cache-miss path).
+    again = bounded.outputs(skills[0].id)
+    want0 = ref.outputs(skills[0].id)
+    for p in again.probe_ids:
+        assert np.array_equal(again.raw[p], want0.raw[p])
+
+
 # --------------------------------------------------------------------------------------------
 # EXACT / PERCEPTUAL / DISTINCT — the exit-criterion hand-built pairs.
 # --------------------------------------------------------------------------------------------
@@ -275,6 +306,23 @@ def test_complementary_flip_and_invert_commute() -> None:
         semantic=None,
     )
     assert res.relation is Relation.COMPLEMENTARY
+    assert abs(res.distances["effect_corr"]) < 0.85
+
+
+def test_commuting_same_aspect_effects_are_not_complementary() -> None:
+    add10 = _skill("add10_v1", _add(10))
+    add20 = _skill("add20_v1", _add(20))
+    ev = _evaluator([add10, add20], _textured_battery())
+    th = ThresholdConfig(perceptual_lpips=0.001, semantic_dino=0.001)
+    res = classify(
+        add10.comparator_view(),
+        add20.comparator_view(),
+        ev,
+        thresholds=th,
+        perceptual=FakePerceptual(),
+        semantic=None,
+    )
+    assert res.relation is Relation.DISTINCT
 
 
 def test_abstention_band_returns_uncertain() -> None:

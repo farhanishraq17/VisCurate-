@@ -31,6 +31,7 @@ from viscurate.curation.agent import (
 )
 from viscurate.curation.environment import CurationEnvironment, EpisodeResult, run_episode
 from viscurate.curation.gating import GateDecision, gate_structural
+from viscurate.curation.hardened import HardenedExecutor, HardenedRunResult
 from viscurate.curation.sandbox import HARDENING_PLAN, REVIEW_REQUIRED, ExecutionPolicy
 from viscurate.curation.state import CurationState, SkillSummary, UsageStats
 
@@ -49,6 +50,8 @@ __all__ = [
     "EpisodeResult",
     "ExecutionPolicy",
     "GateDecision",
+    "HardenedExecutor",
+    "HardenedRunResult",
     "LlmCurationAgent",
     "OllamaClient",
     "ScriptedAgent",

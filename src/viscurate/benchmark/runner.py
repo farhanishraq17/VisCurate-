@@ -17,7 +17,7 @@ The runner only *combines* their verdicts; it never lets text reach the output p
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 from viscurate.baselines.judges import (
@@ -257,6 +257,8 @@ def run_benchmark(
     compute_measurements: bool = True,
     seed: int | None = None,
     meta: dict[str, object] | None = None,
+    fingerprint_progress: Callable[[int, int, str], None] | None = None,
+    progress: Callable[[int, int, Pair], None] | None = None,
 ) -> BenchmarkResult:
     """Run every judge track over the candidate pairs and score them against ``G0``.
 
@@ -272,7 +274,12 @@ def run_benchmark(
         if semantic is None:
             raise ValueError("candidate generation needs a semantic backend (or pass `pairs`)")
         fps = compute_fingerprints(
-            views, provider, semantic, screening_ids=screening_ids, seed=seed
+            views,
+            provider,
+            semantic,
+            screening_ids=screening_ids,
+            seed=seed,
+            progress=fingerprint_progress,
         )
         generated = candidate_pairs(views, fps, k=candidate_k, max_distance=candidate_max_distance)
     else:
@@ -291,8 +298,15 @@ def run_benchmark(
     measurements: dict[Pair, PairMeasurement] = {}
     outcomes: list[PairOutcome] = []
     runnable = [j for j in text_judges if not (isinstance(j, LlmJudge) and not j.available)]
+    # A judge that raises mid-run (e.g. a hard API failure surviving the SDK's retries) is
+    # isolated: it is recorded here and skipped for the remaining pairs, so one flaky track never
+    # aborts the whole run. Its partial predictions are purged below so it reports as *not run*.
+    failed: dict[str, str] = {}
 
-    for a_id, b_id in scored:
+    total = len(scored)
+    for idx, (a_id, b_id) in enumerate(scored, start=1):
+        if progress is not None:
+            progress(idx, total, (a_id, b_id))
         a_spec, b_spec = spec_by_id[a_id], spec_by_id[b_id]
         truth[(a_id, b_id)] = ground_truth.label(a_id, b_id)
         ov = _output_verdict(
@@ -309,7 +323,13 @@ def run_benchmark(
         out_preds[(a_id, b_id)] = ov
         tv: dict[str, Verdict] = {}
         for judge in runnable:
-            v = _to_verdict(judge.verdict(records[a_id], records[b_id]))
+            if judge.name in failed:
+                continue
+            try:
+                v = _to_verdict(judge.verdict(records[a_id], records[b_id]))
+            except Exception as exc:  # isolate a hard judge failure; other tracks continue
+                failed[judge.name] = f"{type(exc).__name__}: {exc}"[:200]
+                continue
             text_preds[judge.name][(a_id, b_id)] = v
             tv[judge.name] = v
         m = (
@@ -332,18 +352,30 @@ def run_benchmark(
         measurements[(a_id, b_id)] = m
         outcomes.append(PairOutcome((a_id, b_id), truth[(a_id, b_id)], ov, tv, m))
 
+    # Purge any partial predictions from judges that errored mid-run so a failed track reports as
+    # *not run* (identical to an unconfigured track), never scored over a subset of pairs.
+    for name in failed:
+        text_preds[name].clear()
+        for oc in outcomes:
+            oc.text.pop(name, None)
+
     # -- assemble tracks ----------------------------------------------------------
     output_track = Track(name="output-grounded", kind="output", predictions=out_preds)
     text_tracks: list[Track] = []
     for judge in text_judges:
-        ran = judge in runnable
+        if judge.name in failed:
+            ran = False
+            note = f"judge errored mid-run — track not run: {failed[judge.name]}"
+        else:
+            ran = judge in runnable
+            note = "" if ran else "no LLM client configured — track not run"
         text_tracks.append(
             Track(
                 name=judge.name,
                 kind="text",
                 predictions=text_preds[judge.name],
                 ran=ran,
-                note="" if ran else "no LLM client configured — track not run",
+                note=note,
             )
         )
 

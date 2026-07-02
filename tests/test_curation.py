@@ -23,6 +23,7 @@ from viscurate.curation import (
     ActionStatus,
     CurationEnvironment,
     ExecutionPolicy,
+    HardenedExecutor,
     LlmCurationAgent,
     ScriptedAgent,
     UsageStats,
@@ -168,8 +169,9 @@ def test_execution_policy_blocks_untrusted_allows_trusted() -> None:
     assert policy.gate(trusted=True).permitted is True
     denied = policy.gate(trusted=False)
     assert denied.permitted is False and denied.reason == REVIEW_REQUIRED
-    # Only a reviewed, hardened sandbox flips this — exercised by the override.
-    assert ExecutionPolicy(allow_untrusted=True).gate(trusted=False).permitted is True
+    assert ExecutionPolicy(allow_untrusted=True).gate(trusted=False).permitted is False
+    allowed = ExecutionPolicy(allow_untrusted=True, hardened=True).gate(trusted=False)
+    assert allowed.permitted is True
 
 
 def test_split_is_blocked_pending_hardened_sandbox() -> None:
@@ -177,6 +179,70 @@ def test_split_is_blocked_pending_hardened_sandbox() -> None:
     env = _env([flip])
     res = env.apply(Action(kind=ActionKind.SPLIT, primary="flip_v1"))
     assert res.status is ActionStatus.BLOCKED
+
+
+def _hardened_env(skills: Sequence[Skill]) -> CurationEnvironment:
+    executor = HardenedExecutor()
+    return _env(
+        skills,
+        policy=ExecutionPolicy(allow_untrusted=True, hardened=True),
+        hardened_executor=executor,
+    )
+
+
+def test_add_function_is_sandboxed_and_verifiable() -> None:
+    flip = _skill("flip_v1", _flip, "geo")
+    env = _hardened_env([flip])
+    source = (
+        "import numpy as np\n"
+        "def run(image, params, seed):\n"
+        "    return np.ascontiguousarray(image[:, ::-1])\n"
+    )
+    added = env.apply(Action(kind=ActionKind.ADD, new_skill_id="agent_flip_v1", fn_source=source))
+    assert added.status is ActionStatus.APPLIED
+    assert env.registry.get("agent_flip_v1").metadata.trusted is False
+
+    merged = env.apply(Action(kind=ActionKind.MERGE, primary="agent_flip_v1", secondary="flip_v1"))
+    assert merged.status is ActionStatus.APPLIED
+
+
+def test_modify_function_becomes_untrusted_and_sandboxed() -> None:
+    flip = _skill("flip_v1", _flip, "geo")
+    env = _hardened_env([flip])
+    source = "def run(image, params, seed):\n    return 255 - image\n"
+    res = env.apply(Action(kind=ActionKind.MODIFY, primary="flip_v1", fn_source=source))
+    assert res.status is ActionStatus.APPLIED
+    assert env.registry.get("flip_v1").metadata.trusted is False
+
+
+def test_split_adds_untrusted_specialization_atomically() -> None:
+    flip = _skill("flip_v1", _flip, "geo")
+    env = _hardened_env([flip])
+    bad = env.apply(
+        Action(
+            kind=ActionKind.SPLIT,
+            primary="flip_v1",
+            new_skill_id="bad_split_v1",
+            fn_source="def run(image, params, seed):\n    raise RuntimeError('boom')\n",
+        )
+    )
+    assert bad.status is ActionStatus.REJECTED
+    assert "bad_split_v1" not in env.registry
+
+    good = env.apply(
+        Action(
+            kind=ActionKind.SPLIT,
+            primary="flip_v1",
+            new_skill_id="split_flip_v1",
+            fn_source=(
+                "import numpy as np\n"
+                "def run(image, params, seed):\n"
+                "    return np.ascontiguousarray(image[:, ::-1])\n"
+            ),
+        )
+    )
+    assert good.status is ActionStatus.APPLIED
+    assert "split_flip_v1" in env.registry
 
 
 # --------------------------------------------------------------------------------------------
@@ -260,7 +326,9 @@ def test_parameterize_approved_on_subsumption() -> None:
     assert res.status is ActionStatus.APPLIED
     assert res.relation == Relation.SUBSUMPTION.value
     assert "rotate_90_v1" not in env.registry  # specialization folded away
-    assert "rotate_canvas_degrees_v1" in env.registry
+    survivor = env.registry.get("rotate_canvas_degrees_v1")
+    assert "rotate_90_v1" in survivor.metadata.absorbed_bindings
+    assert survivor.metadata.absorbed_bindings["rotate_90_v1"] == {"degrees": 90.0}
 
 
 def test_parameterize_rejected_on_wrong_direction() -> None:

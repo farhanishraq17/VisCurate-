@@ -117,8 +117,9 @@ def execute_plan(
     input_image: Image,
     *,
     seed: int = 0,
+    allow_untrusted: bool = False,
 ) -> PlanExecution:
-    """Execute a solver plan in-process over trusted skills only."""
+    """Execute a solver plan; untrusted skills require an explicit sandbox-backed opt-in."""
     out = input_image
     used: list[str] = []
     for step in plan.steps:
@@ -130,7 +131,7 @@ def execute_plan(
                 used_skill_ids=tuple(used),
             )
         skill = registry.get(step.skill_id)
-        if not skill.metadata.trusted:
+        if not skill.metadata.trusted and not allow_untrusted:
             return PlanExecution(
                 ok=False,
                 output=None,

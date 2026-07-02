@@ -1,0 +1,32 @@
+# Synthetic-only, offline probe battery for the run.sh smoke test.
+#
+# Unlike configs/probes.yaml this downloads NO natural photos (no COCO network call) and uses
+# small counts — just enough to clear the per-domain coverage floor and exercise the verifier
+# path quickly. Reproducible: same seed -> same probe bytes -> same hashes.
+
+seed: 1234
+size: 64
+
+counts:
+  gradient: 6
+  texture: 6
+  shape: 6
+  document: 6
+  colorchart: 6
+  noise: 6
+
+# No natural photos for the smoke test — keeps it offline and fast.
+n_natural: 0
+download_natural: false
+
+# Coverage floor per synthetic domain (counts above must stay >= this).
+min_per_domain: 5
+
+required_degenerate:
+  - all_black
+  - all_white
+  - single_color
+  - one_by_one
+  - thin_1xN
+  - thin_Nx1
+  - high_res_1024

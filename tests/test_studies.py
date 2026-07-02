@@ -139,6 +139,11 @@ def test_aggregation_pareto_correlation_and_ablation() -> None:
     assert output.success.mean == pytest.approx(0.85)
     assert output.action_f1 is not None and output.action_f1.mean == pytest.approx(0.75)
 
+    boot_rows = aggregate_points(points, ci_method="bootstrap", bootstrap_samples=100, seed=7)
+    boot_output = next(r for r in boot_rows if r.method == "output-gated")
+    assert boot_output.success.n == 2
+    assert boot_output.success.ci95_low <= boot_output.success.mean <= boot_output.success.ci95_high
+
     front = aggregate_pareto_front(rows)
     assert any(r.method == "output-gated" for r in front)
     assert any(r.method == "no-curation" for r in front)  # zero action cost is Pareto-relevant
@@ -187,9 +192,28 @@ def test_cli_phase8_smoke(tmp_path) -> None:  # type: ignore[no-untyped-def]
         encoding="utf-8",
     )
     out = tmp_path / "phase8"
-    assert main(["phase8", "--points", str(points_path), "-o", str(out)]) == 0
+    assert (
+        main(
+            [
+                "phase8",
+                "--points",
+                str(points_path),
+                "-o",
+                str(out),
+                "--ci-method",
+                "bootstrap",
+                "--bootstrap-samples",
+                "100",
+                "--bootstrap-seed",
+                "7",
+            ]
+        )
+        == 0
+    )
     assert (out / "report.md").exists()
     assert (out / "manifest.json").exists()
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["ci_method"] == "bootstrap"
 
 
 def test_equivalence_track_summaries_reuse_phase4_metrics() -> None:

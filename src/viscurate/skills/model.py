@@ -143,6 +143,9 @@ class SkillMetadata(_Frozen):
     # INTERNAL-ONLY ground-truth labels — never shown to the agent (CLAUDE.md §1.2).
     is_buggy: bool = False
     is_dead: bool = False
+    # Parameterization provenance: folded specializations and the survivor bindings that covered
+    # them. This is safe agent-facing metadata, not an internal label.
+    absorbed_bindings: dict[str, Params] = Field(default_factory=dict)
 
     _INTERNAL_ONLY = ("is_buggy", "is_dead")
 

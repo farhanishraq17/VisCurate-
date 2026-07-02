@@ -242,7 +242,7 @@ def test_inter_annotator_agreement_pending_then_computed() -> None:
 # --------------------------------------------------------------------------------------------
 
 
-def _small_run():  # type: ignore[no-untyped-def]
+def _small_run(extra_judges=()):  # type: ignore[no-untyped-def]
     reg = build_builtin_registry()
     ids = [
         "blur_gaussian_v1",
@@ -267,7 +267,7 @@ def _small_run():  # type: ignore[no-untyped-def]
     g0 = load_ground_truth(G0_PATH, valid_ids=None)  # scoring a subset
     align = load_param_alignment(ALIGN_PATH)
     emb = TfidfEmbedder([text_record_from_spec(s).text() for s in specs])
-    judges = [NameMatchJudge(), EmbeddingCosineJudge(emb, tau=0.3), LlmJudge()]
+    judges = [NameMatchJudge(), EmbeddingCosineJudge(emb, tau=0.3), LlmJudge(), *extra_judges]
     result = run_benchmark(
         specs,
         provider,
@@ -300,6 +300,31 @@ def test_runner_marks_unavailable_llm_track_not_run() -> None:
     llm = result.track("llm-on-descriptions")
     assert llm.ran is False and "no LLM" in llm.note
     assert llm.predictions == {}
+
+
+class _BoomJudge:
+    """A text judge that always raises — stands in for a hard LLM/API failure mid-run."""
+
+    name = "boom-judge"
+
+    def verdict(self, a, b):  # type: ignore[no-untyped-def]
+        raise RuntimeError("simulated API outage")
+
+
+def test_runner_isolates_a_failing_judge() -> None:
+    # A judge that errors mid-run must not abort the whole benchmark.
+    result, _ = _small_run(extra_judges=[_BoomJudge()])
+    boom = result.track("boom-judge")
+    # …it is recorded as not-run with an explanatory note…
+    assert boom.ran is False
+    assert "errored mid-run" in boom.note and "RuntimeError" in boom.note
+    # …its partial predictions are purged (no partial-coverage metrics)…
+    assert boom.predictions == {}
+    assert all("boom-judge" not in oc.text for oc in result.outcomes)
+    # …and the healthy tracks are unaffected.
+    assert result.track("name-match").ran is True
+    assert result.track("name-match").predictions
+    assert result.track("embedding-cosine").predictions
 
 
 def test_calibration_from_run_stamps_provenance() -> None:
@@ -337,11 +362,11 @@ def test_review_slice_export_and_kappa_roundtrip(tmp_path) -> None:  # type: ign
     tmpl = write_review_template(items, tmp_path / "review.json")
     import json
 
-    base = json.loads(tmpl.read_text())
+    base = json.loads(tmpl.read_text(encoding="utf-8"))
     for ann, rel in (("a", Relation.SEMANTIC_PRESERVING), ("b", Relation.SEMANTIC_PRESERVING)):
         for it in base["items"]:
             it["label"] = rel.value
-        (tmp_path / f"ann_{ann}.json").write_text(json.dumps(base))
+        (tmp_path / f"ann_{ann}.json").write_text(json.dumps(base), encoding="utf-8")
     labels = load_review_labels([tmp_path / "ann_a.json", tmp_path / "ann_b.json"])
     res = inter_annotator_agreement(labels)
     assert res.status == "computed" and res.kappa == pytest.approx(1.0)  # both said SEMANTIC
@@ -350,12 +375,23 @@ def test_review_slice_export_and_kappa_roundtrip(tmp_path) -> None:  # type: ign
 def test_write_report_emits_artifacts(tmp_path) -> None:  # type: ignore[no-untyped-def]
     result, specs = _small_run()
     paths = write_report(result, tmp_path / "out", specs=specs)
-    for key in ("report", "divergence_csv", "pairs_csv", "manifest", "review_template"):
+    for key in (
+        "report",
+        "divergence_csv",
+        "pairs_csv",
+        "text_operating_points_csv",
+        "manifest",
+        "review_template",
+    ):
         assert paths[key].exists()
-    assert "Divergence" in paths["report"].read_text()
+    assert "Divergence" in paths["report"].read_text(encoding="utf-8")
+    pairs_text = paths["pairs_csv"].read_text(encoding="utf-8")
+    assert "embedding-cosine_score" in pairs_text
+    ops_text = paths["text_operating_points_csv"].read_text(encoding="utf-8")
+    assert "embedding-cosine" in ops_text and ",1" in ops_text
     import json
 
-    manifest = json.loads(paths["manifest"].read_text())
+    manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
     assert (
         manifest["phase"] == 4 and "canon_version" not in manifest
     )  # canon added only by CLI meta

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from viscurate.config import ExecutorConfig
 from viscurate.skills._testkit import make_crash_skill, make_sleep_skill
-from viscurate.skills.executor import SandboxedExecutor
+from viscurate.skills.executor import SandboxedExecutor, _posix_preexec
 from viscurate.skills.library import build_builtin_registry
 from viscurate.skills.model import Image
 
@@ -51,3 +52,23 @@ def test_sandboxed_runs_are_byte_identical(probe_rgb: Image) -> None:
     assert r1.ok and r2.ok
     assert r1.output is not None and r2.output is not None
     assert np.array_equal(r1.output, r2.output)
+
+
+def test_darwin_preexec_skips_address_space_rlimit(monkeypatch: pytest.MonkeyPatch) -> None:
+    import resource
+    import sys
+
+    calls: list[int] = []
+
+    def fake_setrlimit(which: int, limits: tuple[int, int]) -> None:
+        del limits
+        calls.append(which)
+
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(resource, "setrlimit", fake_setrlimit)
+
+    preexec = _posix_preexec(max_memory_mb=128, cpu_s=2)
+    assert preexec is not None
+    preexec()
+    assert resource.RLIMIT_CPU in calls
+    assert resource.RLIMIT_AS not in calls

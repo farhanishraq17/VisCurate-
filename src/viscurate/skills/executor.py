@@ -30,6 +30,12 @@ from viscurate.skills.model import Image, Params, Skill
 __all__ = ["ExecutionResult", "SandboxedExecutor"]
 
 _IS_POSIX = os.name == "posix"
+_WORKER_ENV_LIMITS = {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+}
 
 
 @dataclass(frozen=True)
@@ -54,8 +60,13 @@ def _posix_preexec(max_memory_mb: int | None, cpu_s: int) -> Callable[[], None] 
         return None
     import resource
 
+    # Darwin accepts the `resource` module but can reject RLIMIT_AS; keep the executor usable
+    # there with CPU+wall-time limits rather than failing before the worker starts.
+    set_memory = max_memory_mb is not None and sys.platform != "darwin"
+
     def _apply() -> None:  # pragma: no cover - runs only in POSIX child
-        if max_memory_mb is not None:
+        if set_memory:
+            assert max_memory_mb is not None
             nbytes = max_memory_mb * 1024 * 1024
             resource.setrlimit(resource.RLIMIT_AS, (nbytes, nbytes))
         resource.setrlimit(resource.RLIMIT_CPU, (cpu_s, cpu_s))
@@ -74,6 +85,12 @@ class SandboxedExecutor:
                 "executor_rlimits_unavailable",
                 platform=sys.platform,
                 detail="resource module is POSIX-only; falling back to wall-clock timeout only",
+            )
+        elif sys.platform == "darwin" and self._config.max_memory_mb is not None:
+            self._log.warning(
+                "executor_memory_rlimit_unavailable",
+                platform=sys.platform,
+                detail="RLIMIT_AS is unreliable on Darwin; using CPU rlimit + wall-clock timeout",
             )
 
     @property
@@ -107,13 +124,16 @@ class SandboxedExecutor:
 
             cmd = [sys.executable, "-m", "viscurate.skills._worker", str(in_path), str(out_path)]
             cpu_budget = max(1, int(self._config.timeout_s) + 1)
+            preexec = _posix_preexec(self._config.max_memory_mb, cpu_budget)
+            env = {**os.environ, **_WORKER_ENV_LIMITS}
             start = time.perf_counter()
             try:
                 proc = subprocess.run(
                     cmd,
                     timeout=self._config.timeout_s,
                     capture_output=True,
-                    preexec_fn=_posix_preexec(self._config.max_memory_mb, cpu_budget),
+                    preexec_fn=preexec,
+                    env=env,
                 )
             except subprocess.TimeoutExpired:
                 duration = time.perf_counter() - start
@@ -126,6 +146,29 @@ class SandboxedExecutor:
                     error=f"TIMEOUT after {self._config.timeout_s}s",
                     duration_s=duration,
                     timed_out=True,
+                )
+            except subprocess.SubprocessError as exc:
+                if preexec is None or "preexec_fn" not in str(exc):
+                    duration = time.perf_counter() - start
+                    self._log.warning("execution_failed", skill_id=skill.id, error=str(exc))
+                    return ExecutionResult(
+                        ok=False,
+                        output=None,
+                        error=f"worker launch failed: {exc}",
+                        duration_s=duration,
+                    )
+                self._log.warning(
+                    "execution_rlimit_degraded",
+                    skill_id=skill.id,
+                    detail="preexec_fn failed; retrying once without POSIX rlimits",
+                    error=str(exc),
+                )
+                proc = subprocess.run(
+                    cmd,
+                    timeout=self._config.timeout_s,
+                    capture_output=True,
+                    preexec_fn=None,
+                    env=env,
                 )
             duration = time.perf_counter() - start
 

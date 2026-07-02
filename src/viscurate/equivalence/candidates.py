@@ -18,7 +18,7 @@ behaviour still collide and get verified — the redundancy text-based pruning m
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -76,10 +76,12 @@ def compute_fingerprints(
     *,
     screening_ids: Sequence[str],
     seed: int | None = None,
+    progress: Callable[[int, int, str], None] | None = None,
 ) -> dict[str, NDArrayF]:
     """One L2-normalized output fingerprint per skill: [perceptual-hash ‖ mean DINO feature]."""
     fps: dict[str, NDArrayF] = {}
-    for v in views:
+    total = len(views)
+    for idx, v in enumerate(views, start=1):
         out = provider.outputs(v.id, seed=seed)
         ids = [p for p in screening_ids if p in out.canon]
         if not ids:
@@ -91,6 +93,8 @@ def compute_fingerprints(
         mean_feat = feats.mean(axis=0) if feats.size else np.zeros(1, np.float32)
         vec = np.concatenate([_unit(hashes), _unit(np.asarray(mean_feat, dtype=np.float32))])
         fps[v.id] = _unit(vec)
+        if progress is not None:
+            progress(idx, total, v.id)
     return fps
 
 

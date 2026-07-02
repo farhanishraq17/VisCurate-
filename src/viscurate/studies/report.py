@@ -42,12 +42,24 @@ def render_markdown_report(
     title: str = "VisCurate — Phase 8 Studies",
     output_gate: str = "output",
     text_gate: str = "text",
+    ci_method: str = "normal",
+    bootstrap_samples: int = 2000,
+    seed: int = 0,
 ) -> str:
     """Render the human-readable Phase-8 report."""
-    aggregates = aggregate_points(points)
+    aggregates = aggregate_points(
+        points, ci_method=ci_method, bootstrap_samples=bootstrap_samples, seed=seed
+    )
     pareto = aggregate_pareto_front(aggregates)
     corr = construct_validity(points)
-    ablation = vision_matters_ablation(points, output_gate=output_gate, text_gate=text_gate)
+    ablation = vision_matters_ablation(
+        points,
+        output_gate=output_gate,
+        text_gate=text_gate,
+        ci_method=ci_method,
+        bootstrap_samples=bootstrap_samples,
+        seed=seed,
+    )
     methods = sorted({p.method for p in points})
 
     lines: list[str] = [f"# {title}\n"]
@@ -114,7 +126,15 @@ def render_markdown_report(
     lines.append("")
 
     lines.append("## Notes\n")
-    lines.append("- Reported intervals are normal-approximation 95% CIs over supplied seed rows.")
+    if ci_method == "bootstrap":
+        lines.append(
+            f"- Reported intervals are bootstrap 95% CIs over supplied seed rows "
+            f"({bootstrap_samples} resamples, seed={seed})."
+        )
+    else:
+        lines.append(
+            "- Reported intervals are normal-approximation 95% CIs over supplied seed rows."
+        )
     lines.append(
         "- Action quality is scored against `ideal_actions.json`; `KEEP` entries are not required "
         "actions, and `retrieve`/`end` are not counted as predicted repairs."
@@ -289,6 +309,9 @@ def write_study_report(
     title: str = "VisCurate — Phase 8 Studies",
     output_gate: str = "output",
     text_gate: str = "text",
+    ci_method: str = "normal",
+    bootstrap_samples: int = 2000,
+    seed: int = 0,
     manifest_extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Path]:
     """Write Phase-8 artifacts and return their paths."""
@@ -296,14 +319,31 @@ def write_study_report(
     out.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Path] = {}
 
-    aggregates = aggregate_points(points)
+    aggregates = aggregate_points(
+        points, ci_method=ci_method, bootstrap_samples=bootstrap_samples, seed=seed
+    )
     pareto = aggregate_pareto_front(aggregates)
     corr = construct_validity(points)
-    ablation = vision_matters_ablation(points, output_gate=output_gate, text_gate=text_gate)
+    ablation = vision_matters_ablation(
+        points,
+        output_gate=output_gate,
+        text_gate=text_gate,
+        ci_method=ci_method,
+        bootstrap_samples=bootstrap_samples,
+        seed=seed,
+    )
 
     paths["report"] = out / "report.md"
     paths["report"].write_text(
-        render_markdown_report(points, title=title, output_gate=output_gate, text_gate=text_gate),
+        render_markdown_report(
+            points,
+            title=title,
+            output_gate=output_gate,
+            text_gate=text_gate,
+            ci_method=ci_method,
+            bootstrap_samples=bootstrap_samples,
+            seed=seed,
+        ),
         encoding="utf-8",
     )
 
@@ -334,6 +374,9 @@ def write_study_report(
         "n_pareto": len(pareto),
         "methods": sorted({p.method for p in points}),
         "gates": sorted({p.gate for p in points if p.gate}),
+        "ci_method": ci_method,
+        "bootstrap_samples": bootstrap_samples if ci_method == "bootstrap" else None,
+        "ci_seed": seed if ci_method == "bootstrap" else None,
         "construct_validity": corr.model_dump(mode="json"),
         "vision_matters": {
             "output_gate": output_gate,

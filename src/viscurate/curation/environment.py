@@ -26,6 +26,7 @@ from typing import Any
 from viscurate.config import ThresholdConfig
 from viscurate.curation.actions import Action, ActionKind, ActionResult, ActionStatus
 from viscurate.curation.gating import gate_structural
+from viscurate.curation.hardened import HardenedExecutor, make_hardened_fn
 from viscurate.curation.sandbox import REVIEW_REQUIRED, ExecutionPolicy
 from viscurate.curation.state import CurationState, UsageStats
 from viscurate.equivalence.backends import PerceptualBackend, SemanticBackend
@@ -33,6 +34,7 @@ from viscurate.equivalence.compare import BatteryEvaluator, OutputProvider
 from viscurate.equivalence.param_alignment import ParamAlignment
 from viscurate.equivalence.taxonomy import classify
 from viscurate.logging import get_logger
+from viscurate.skills.canonicalize import max_abs_pixel_diff
 from viscurate.skills.model import Image, ParamSpec, ParamsSchema, Skill, SkillMetadata
 from viscurate.skills.registry import SkillRegistry
 
@@ -69,6 +71,28 @@ def _replace_default(schema: ParamsSchema, param_name: str, value: object) -> Pa
     return ParamsSchema(params=tuple(out))
 
 
+def _find_absorbing_binding(
+    provider: OutputProvider,
+    spec_id: str,
+    gen_id: str,
+    alignment: ParamAlignment | None,
+    *,
+    epsilon: float,
+) -> dict[str, Any]:
+    """Find a generalizer binding that reproduces the specialization at its default binding."""
+    spec = provider.outputs(spec_id, provider.default_params(spec_id))
+    grid = alignment.subsumption_grid(gen_id) if alignment is not None else None
+    candidates = grid if grid is not None else provider.param_grid(gen_id, max_points=24)
+    for params in candidates:
+        gen = provider.outputs(gen_id, params)
+        common = spec.common(gen)
+        if common and all(
+            max_abs_pixel_diff(spec.canon[p], gen.canon[p]) <= epsilon for p in common
+        ):
+            return dict(params)
+    return provider.default_params(gen_id)
+
+
 class CurationEnvironment:
     """A curatable library + the verifier gate + the trust boundary + an action log."""
 
@@ -84,6 +108,7 @@ class CurationEnvironment:
         semantic: SemanticBackend | None = None,
         clip: SemanticBackend | None = None,
         policy: ExecutionPolicy | None = None,
+        hardened_executor: HardenedExecutor | None = None,
         budget: int = 50,
         usage_fold_threshold: int = 1,
         logger: Any | None = None,
@@ -96,7 +121,10 @@ class CurationEnvironment:
         self._perceptual = perceptual
         self._semantic = semantic
         self._clip = clip
-        self._policy = policy or ExecutionPolicy()
+        self._hardened_executor = hardened_executor
+        self._policy = policy or ExecutionPolicy(
+            hardened=hardened_executor is not None and hardened_executor.available
+        )
         self._budget = budget
         self._usage_fold_threshold = usage_fold_threshold
         self._log = logger or get_logger("curation")
@@ -163,16 +191,7 @@ class CurationEnvironment:
         if kind is ActionKind.MERGE or kind is ActionKind.PARAMETERIZE:
             return self._structural(action, before)
         if kind is ActionKind.SPLIT:
-            # Splitting requires verifying agent-authored specialization fns, which are untrusted
-            # in v1 — blocked pending the hardened sandbox (CLAUDE.md §5).
-            return self._result(
-                action,
-                ActionStatus.BLOCKED,
-                before,
-                before,
-                reason="split requires verifying agent-authored specializations; "
-                + REVIEW_REQUIRED,
-            )
+            return self._split(action, before)
         if kind is ActionKind.REMOVE:
             return self._remove(action, before)
         if kind is ActionKind.MODIFY:
@@ -201,9 +220,9 @@ class CurationEnvironment:
                 before,
                 reason=f"unknown skill id(s): {missing}",
             )
-        # Trust gate: the verifier executes both skills in-process; untrusted code is blocked.
+        # Trust gate: untrusted skills must be backed by the hardened executor/provider path.
         for sid in (a, b):
-            decision = self._policy.gate(trusted=self._is_verifiable(sid))
+            decision = self._policy.gate_skill(self._registry.get(sid))
             if not decision.permitted:
                 return self._result(
                     action,
@@ -211,6 +230,14 @@ class CurationEnvironment:
                     before,
                     before,
                     reason=f"cannot verify {sid}: {decision.reason}",
+                )
+            if not self._is_verifiable(sid):
+                return self._result(
+                    action,
+                    ActionStatus.BLOCKED,
+                    before,
+                    before,
+                    reason=f"cannot verify {sid}: skill is not present in the output provider",
                 )
 
         result = classify(
@@ -238,6 +265,23 @@ class CurationEnvironment:
             )
 
         # Permitted: remove the primary (duplicate/specialization); keep the survivor (secondary).
+        if action.kind is ActionKind.PARAMETERIZE:
+            survivor = self._registry.get(b)
+            absorbed = dict(survivor.metadata.absorbed_bindings)
+            absorbed[a] = _find_absorbing_binding(
+                self._provider, a, b, self._alignment, epsilon=self._thresholds.exact_epsilon
+            )
+            self._registry.register(
+                Skill(
+                    id=survivor.id,
+                    name=survivor.name,
+                    description=survivor.description,
+                    fn=survivor.fn,
+                    params_schema=survivor.params_schema,
+                    metadata=survivor.metadata.model_copy(update={"absorbed_bindings": absorbed}),
+                ),
+                replace=True,
+            )
         self._registry.remove(a)
         self._verifiable.discard(a)
         reason = gate.reason
@@ -280,6 +324,10 @@ class CurationEnvironment:
                 action, ActionStatus.INVALID, before, before, reason=f"unknown skill id: {sid!r}"
             )
         skill = self._registry.get(sid)
+        if action.fn_source:
+            return self._register_untrusted_fn(
+                action, before, replace=True, reason_prefix="modified"
+            )
         name = action.new_name or skill.name
         description = action.new_description or skill.description
         schema = skill.params_schema
@@ -340,8 +388,10 @@ class CurationEnvironment:
                 before,
                 reason=f"skill id already exists: {sid!r}",
             )
-        # Agent-generated → trusted=False, blocked from execution until the hardened sandbox is
-        # reviewed (CLAUDE.md §5). Registered so it appears in the library, never verifiable/run.
+        if action.fn_source:
+            return self._register_untrusted_fn(action, before, replace=False, reason_prefix="added")
+        # Agent-generated metadata only → trusted=False, blocked from execution until executable
+        # source is supplied and the hardened sandbox is enabled.
         self._registry.register(
             Skill(
                 id=sid,
@@ -360,6 +410,99 @@ class CurationEnvironment:
             before,
             len(self._registry),
             reason=f"added {sid} as trusted=False (blocked from execution; {REVIEW_REQUIRED})",
+        )
+
+    def _split(self, action: Action, before: int) -> ActionResult:
+        if action.primary not in self._registry:
+            return self._result(
+                action,
+                ActionStatus.INVALID,
+                before,
+                before,
+                reason=f"unknown skill id: {action.primary!r}",
+            )
+        decision = self._policy.gate(trusted=False)
+        if not decision.permitted or self._hardened_executor is None:
+            return self._result(
+                action,
+                ActionStatus.BLOCKED,
+                before,
+                before,
+                reason="split requires verifying agent-authored specializations; "
+                + (decision.reason or REVIEW_REQUIRED),
+            )
+        if not action.new_skill_id or not action.fn_source:
+            return self._result(
+                action,
+                ActionStatus.INVALID,
+                before,
+                before,
+                reason="split needs new_skill_id and fn_source",
+            )
+        if action.new_skill_id in self._registry:
+            return self._result(
+                action,
+                ActionStatus.INVALID,
+                before,
+                before,
+                reason=f"skill id already exists: {action.new_skill_id!r}",
+            )
+        return self._register_untrusted_fn(action, before, replace=False, reason_prefix="split")
+
+    def _register_untrusted_fn(
+        self, action: Action, before: int, *, replace: bool, reason_prefix: str
+    ) -> ActionResult:
+        decision = self._policy.gate(trusted=False)
+        if not decision.permitted or self._hardened_executor is None:
+            return self._result(
+                action,
+                ActionStatus.BLOCKED,
+                before,
+                before,
+                reason=decision.reason or REVIEW_REQUIRED,
+            )
+        sid = action.primary if replace else action.new_skill_id
+        if not sid:
+            return self._result(
+                action, ActionStatus.INVALID, before, before, reason="missing target skill id"
+            )
+        base = self._registry.get(action.primary) if replace else None
+        skill = Skill(
+            id=sid,
+            name=action.new_name or (base.name if base is not None else sid),
+            description=action.new_description or (base.description if base is not None else ""),
+            fn=make_hardened_fn(action.fn_source, self._hardened_executor),
+            params_schema=ParamsSchema(),
+            metadata=SkillMetadata(
+                family=action.family or "agent", provenance="agent", trusted=False
+            ),
+        )
+        # Smoke-run over the battery before mutating the registry so failures are atomic.
+        trial = (
+            BatteryEvaluator([skill], self._provider.battery, seed=0)
+            if isinstance(self._provider, BatteryEvaluator)
+            else None
+        )
+        if trial is not None:
+            out = trial.outputs(skill.id)
+            if out.errors or not out.probe_ids:
+                return self._result(
+                    action,
+                    ActionStatus.REJECTED,
+                    before,
+                    before,
+                    reason=f"generated function failed verifier smoke: {out.errors}",
+                )
+        self._registry.register(skill, replace=replace)
+        if isinstance(self._provider, BatteryEvaluator):
+            self._provider.add_skill(skill)
+        self._verifiable.add(skill.id)
+        return self._result(
+            action,
+            ActionStatus.APPLIED,
+            before,
+            len(self._registry),
+            reason=f"{reason_prefix} {skill.id} as trusted=False via hardened sandbox",
         )
 
     # -- helpers -----------------------------------------------------------------------

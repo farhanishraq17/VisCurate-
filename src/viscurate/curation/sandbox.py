@@ -13,8 +13,8 @@ boundary explicit and testable:
   ``BatteryEvaluator`` (which has no trust gate of its own) or to a structural edit — so an
   agent-added skill can never have its ``fn`` run until the hardened sandbox is reviewed.
 
-``allow_untrusted`` mirrors :class:`viscurate.config.ExecutorConfig.allow_untrusted` and MUST
-stay ``False`` outside a reviewed, hardened sandbox.
+    ``allow_untrusted`` mirrors :class:`viscurate.config.ExecutorConfig.allow_untrusted`; it only
+    permits untrusted code when paired with an active hardened backend.
 """
 
 from __future__ import annotations
@@ -64,10 +64,18 @@ class ExecutionPolicy:
     """
 
     allow_untrusted: bool = False
+    hardened: bool = False
 
     def gate(self, *, trusted: bool) -> ExecutionDecision:
-        if trusted or self.allow_untrusted:
+        if trusted:
             return ExecutionDecision(permitted=True)
+        if self.allow_untrusted and self.hardened:
+            return ExecutionDecision(permitted=True)
+        if self.allow_untrusted and not self.hardened:
+            return ExecutionDecision(
+                permitted=False,
+                reason="BLOCKED: allow_untrusted requires an active hardened sandbox",
+            )
         return ExecutionDecision(permitted=False, reason=REVIEW_REQUIRED)
 
     def gate_skill(self, skill: Skill) -> ExecutionDecision:

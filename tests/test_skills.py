@@ -73,6 +73,15 @@ def test_center_crop_subsumed_by_bounding_box(probe_rgb: Image) -> None:
     assert np.array_equal(center, bbox)
 
 
+def test_center_crop_matches_centered_bbox_on_odd_size() -> None:
+    image = np.arange(65 * 67 * 3, dtype=np.uint8).reshape(65, 67, 3)
+    center = _REGISTRY.get("crop_center_percentage_v1").run(image, {"percent": 50.0})
+    bbox = _REGISTRY.get("crop_bounding_box_v1").run(
+        image, {"left": 0.25, "top": 0.25, "width": 0.5, "height": 0.5}
+    )
+    assert np.array_equal(center, bbox)
+
+
 def test_linear_stretch_is_percentile_0_100(probe_rgb: Image) -> None:
     linear = _REGISTRY.get("linear_contrast_stretch_v1").run(probe_rgb)
     pct = _REGISTRY.get("contrast_stretching_percentile_v1").run(

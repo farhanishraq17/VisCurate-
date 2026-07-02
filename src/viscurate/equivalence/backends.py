@@ -155,6 +155,11 @@ class LpipsBackend:
         with torch.no_grad():
             ta = _as_nchw([a], self._device) * 2.0 - 1.0  # LPIPS expects [-1, 1]
             tb = _as_nchw([b], self._device) * 2.0 - 1.0
+            if min(ta.shape[-2:]) < 64:
+                import torch.nn.functional as F
+
+                ta = F.interpolate(ta, size=(64, 64), mode="bilinear", align_corners=False)
+                tb = F.interpolate(tb, size=(64, 64), mode="bilinear", align_corners=False)
             d = self._model(ta, tb)
         return float(d.reshape(-1)[0].item())
 
@@ -190,7 +195,7 @@ class _TimmFeatureBackend:
         if not imgs:
             return np.zeros((0, 0), dtype=np.float32)
         out: list[NDArrayF] = []
-        batch = 16
+        batch = 1
         with torch.no_grad():
             for i in range(0, len(imgs), batch):
                 chunk = imgs[i : i + batch]
@@ -244,7 +249,7 @@ class ClipBackend:
         if not imgs:
             return np.zeros((0, 0), dtype=np.float32)
         out: list[NDArrayF] = []
-        batch = 16
+        batch = 1
         with torch.no_grad():
             for i in range(0, len(imgs), batch):
                 chunk = imgs[i : i + batch]

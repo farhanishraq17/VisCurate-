@@ -9,11 +9,15 @@ text, different behaviour) and on the redundancy they miss (different text, iden
 
 from __future__ import annotations
 
+import json
 import math
+import os
 import re
+import urllib.error
+import urllib.request
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 import numpy.typing as npt
@@ -28,6 +32,7 @@ __all__ = [
     "LlmJudge",
     "LlmUnavailableError",
     "NameMatchJudge",
+    "OpenAIClient",
     "TextEmbedder",
     "TextJudge",
     "TextRecord",
@@ -234,6 +239,90 @@ class UnavailableLlmClient:
             "no LLM client configured (set ANTHROPIC_API_KEY or run Ollama); "
             "the LLM-on-descriptions track was not run"
         )
+
+
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_reasoning(text: str) -> str:
+    """Drop ``<think>…</think>`` reasoning blocks (Qwen3 etc.) so parsing sees the answer."""
+    return _THINK_RE.sub("", text).strip()
+
+
+class OpenAIClient:
+    """An OpenAI-compatible chat-completions client (dependency-free, stdlib HTTP).
+
+    Talks to the OpenAI ``/v1/chat/completions`` endpoint that ``vllm serve`` exposes, so a
+    locally-served model (e.g. Qwen3 via ``start_vlm.sh``) can drive the LLM-on-descriptions
+    judge — or the curation agent — through the same :class:`LlmClient` protocol as
+    :class:`~viscurate.curation.agent.OllamaClient`. No dependency on the ``openai`` package and
+    no network at import time: the request happens only in :meth:`complete`.
+
+    The API key (when an endpoint needs one) is read from ``OPENAI_API_KEY``; vLLM ignores it, so
+    it stays optional and is never written in source (org policy / CLAUDE.md §5). Set
+    ``enable_thinking=False`` for reasoning models (Qwen3) so the one-word relation answer is not
+    buried in (or truncated by) a ``<think>`` block — vLLM forwards it to the chat template.
+    """
+
+    def __init__(
+        self,
+        model: str,
+        *,
+        base_url: str = "http://localhost:8001/v1",
+        api_key: str | None = None,
+        timeout: float = 120.0,
+        temperature: float = 0.0,
+        max_tokens: int = 512,
+        enable_thinking: bool | None = None,
+    ) -> None:
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key if api_key is not None else os.environ.get("OPENAI_API_KEY", "")
+        self.timeout = timeout
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.enable_thinking = enable_thinking
+        self.name = f"openai:{model}"
+
+    def complete(self, prompt: str) -> str:
+        body: dict[str, Any] = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": prompt}],
+            "stream": False,
+        }
+        is_hosted_openai = "api.openai.com" in self.base_url
+        if not is_hosted_openai:
+            body["temperature"] = self.temperature
+        token_field = "max_completion_tokens" if is_hosted_openai else "max_tokens"
+        body[token_field] = self.max_tokens
+        if self.enable_thinking is not None:
+            body["chat_template_kwargs"] = {"enable_thinking": self.enable_thinking}
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        req = urllib.request.Request(
+            f"{self.base_url}/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers=headers,
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", "replace")
+            raise LlmUnavailableError(
+                f"OpenAI-compatible request failed ({self.base_url}): "
+                f"HTTP {exc.code} {exc.reason}: {detail}"
+            ) from exc
+        except (urllib.error.URLError, OSError) as exc:
+            raise LlmUnavailableError(
+                f"OpenAI-compatible request failed ({self.base_url}): {exc}"
+            ) from exc
+        try:
+            content = data["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise LlmUnavailableError(f"unexpected chat-completions response: {data!r}") from exc
+        return _strip_reasoning(str(content))
 
 
 _RELATION_KEYWORDS: tuple[tuple[str, Relation], ...] = (

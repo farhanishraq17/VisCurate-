@@ -111,10 +111,16 @@ def crop_center_percentage(image: Image, params: Params, seed: int) -> Image:
 def crop_bounding_box(image: Image, params: Params, seed: int) -> Image:
     """Crop a fractional box (left, top, width, height ∈ [0,1]); clamped to the image."""
     h, w = image.shape[:2]
-    x0 = int(round(float(params["left"]) * w))
-    y0 = int(round(float(params["top"]) * h))
-    cw = int(round(float(params["width"]) * w))
-    ch = int(round(float(params["height"]) * h))
+    left = float(params["left"])
+    top = float(params["top"])
+    width = float(params["width"])
+    height = float(params["height"])
+    cw = int(round(width * w))
+    ch = int(round(height * h))
+    centered_x = abs(left - (1.0 - width) / 2.0) <= 1.0e-9
+    centered_y = abs(top - (1.0 - height) / 2.0) <= 1.0e-9
+    x0 = (w - cw) // 2 if centered_x else int(round(left * w))
+    y0 = (h - ch) // 2 if centered_y else int(round(top * h))
     x0 = max(0, min(x0, w - 1))
     y0 = max(0, min(y0, h - 1))
     cw = max(1, min(cw, w - x0))

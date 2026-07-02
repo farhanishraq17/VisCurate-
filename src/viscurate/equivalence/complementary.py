@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
+
 from viscurate.equivalence.backends import PerceptualBackend
 from viscurate.equivalence.compare import OutputProvider, OutputSet, worst_case
 from viscurate.equivalence.subsumption import outputs_match
@@ -33,6 +35,7 @@ class ComplementaryResult:
     reason: str
     commute_linf: float = float("nan")
     commute_lpips: float = float("nan")
+    effect_corr: float = float("nan")
     worst_probe: str = ""
 
 
@@ -90,9 +93,51 @@ def is_complementary(
     commutes = outputs_match(
         ab, ba, epsilon=epsilon, tau_perceptual=commute_tau, perceptual=perceptual, ssim_floor=None
     )
+    corr = _effect_residual_correlation(view_a.id, pa, view_b.id, pb, provider, seed=seed)
+    same_aspect = abs(corr) > 0.85 if not np.isnan(corr) else False
     reason = (
-        f"compositions commute (L∞ {linf.value:.4f})"
+        f"compositions commute (L∞ {linf.value:.4f}, residual corr {corr:.3f})"
         if commutes
         else f"order matters (L∞ {linf.value:.4f} @ {linf.probe_id}) → DISTINCT"
     )
-    return ComplementaryResult(commutes, reason, linf.value, lpips_val, linf.probe_id)
+    if commutes and same_aspect:
+        return ComplementaryResult(
+            False,
+            f"compositions commute but residual effects are same-aspect (corr {corr:.3f})",
+            linf.value,
+            lpips_val,
+            corr,
+            linf.probe_id,
+        )
+    return ComplementaryResult(commutes, reason, linf.value, lpips_val, corr, linf.probe_id)
+
+
+def _effect_residual_correlation(
+    a_id: str,
+    params_a: Params,
+    b_id: str,
+    params_b: Params,
+    provider: OutputProvider,
+    *,
+    seed: int | None,
+) -> float:
+    ident = provider.identity_outputs()
+    ao = provider.outputs(a_id, params_a, seed=seed)
+    bo = provider.outputs(b_id, params_b, seed=seed)
+    vals_a: list[np.ndarray] = []
+    vals_b: list[np.ndarray] = []
+    for probe_id in sorted(set(ident.probe_ids) & set(ao.probe_ids) & set(bo.probe_ids)):
+        ia = ident.canon[probe_id].rgb.astype(np.float32)
+        aa = ao.canon[probe_id].rgb.astype(np.float32)
+        bb = bo.canon[probe_id].rgb.astype(np.float32)
+        if ia.shape != aa.shape or ia.shape != bb.shape:
+            continue
+        vals_a.append((aa - ia).reshape(-1))
+        vals_b.append((bb - ia).reshape(-1))
+    if not vals_a:
+        return float("nan")
+    ra = np.concatenate(vals_a)
+    rb = np.concatenate(vals_b)
+    if float(np.linalg.norm(ra)) == 0.0 or float(np.linalg.norm(rb)) == 0.0:
+        return float("nan")
+    return float(np.dot(ra, rb) / (np.linalg.norm(ra) * np.linalg.norm(rb)))

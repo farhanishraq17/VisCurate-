@@ -41,7 +41,7 @@ thresholds:
   calibration_date: null
 
 curation:
-  budget: 50
+  budget: 200
   usage_fold_threshold: 1
 
 downstream:

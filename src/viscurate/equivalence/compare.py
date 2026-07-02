@@ -21,6 +21,7 @@ interface.
 from __future__ import annotations
 
 import json
+from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Protocol
@@ -120,17 +121,51 @@ class BatteryEvaluator:
         battery: Sequence[tuple[str, Image]],
         *,
         seed: int = 0,
+        max_cache_entries: int | None = None,
     ) -> None:
         self._skills: dict[str, Skill] = (
             dict(skills) if isinstance(skills, Mapping) else {s.id: s for s in skills}
         )
         self._battery: list[tuple[str, Image]] = list(battery)
         self._seed = seed
-        self._cache: dict[tuple[str, str, int], OutputSet] = {}
+        # Output cache. Bounded (LRU) when ``max_cache_entries`` is set — otherwise it grows
+        # unbounded, which OOMs a large-battery benchmark: every (skill, param-binding) output
+        # over the full battery is retained, and the subsumption grid alone probes up to 24
+        # bindings/skill/pair. The cache is a pure compute optimization — eviction only trades a
+        # recompute for bounded memory and never changes a result. ``None`` preserves the old
+        # unbounded behaviour for small in-process users (curation env, tests).
+        self._max_cache = max_cache_entries
+        self._cache: OrderedDict[tuple[str, str, int], OutputSet] = OrderedDict()
 
     # -- text-blind interface -----------------------------------------------------
     def comparator_view(self, skill_id: str) -> ComparatorView:
         return self._skills[skill_id].comparator_view()
+
+    def add_skill(self, skill: Skill) -> None:
+        """Register a new skill for subsequent output queries and clear stale cache entries."""
+        self._skills[skill.id] = skill
+        self._cache = OrderedDict(
+            (k, v) for k, v in self._cache.items() if k[0] != skill.id
+        )
+
+    def _cache_get(self, key: tuple[str, str, int]) -> OutputSet | None:
+        """Return a cached OutputSet, marking it most-recently-used (LRU)."""
+        cached = self._cache.get(key)
+        if cached is not None:
+            self._cache.move_to_end(key)
+        return cached
+
+    def _cache_put(self, key: tuple[str, str, int], result: OutputSet) -> None:
+        """Insert into the cache and evict the least-recently-used entries past the bound."""
+        self._cache[key] = result
+        self._cache.move_to_end(key)
+        if self._max_cache is not None:
+            while len(self._cache) > self._max_cache:
+                self._cache.popitem(last=False)
+
+    @property
+    def battery(self) -> tuple[tuple[str, Image], ...]:
+        return tuple(self._battery)
 
     def default_params(self, skill_id: str) -> Params:
         return self._skills[skill_id].params_schema.defaults()
@@ -138,7 +173,7 @@ class BatteryEvaluator:
     def identity_outputs(self) -> OutputSet:
         """The canonicalized raw battery inputs — the no-op reference for non-triviality."""
         key = ("__identity__", "", -1)
-        cached = self._cache.get(key)
+        cached = self._cache_get(key)
         if cached is not None:
             return cached
         canon: dict[str, Canonical] = {}
@@ -156,7 +191,7 @@ class BatteryEvaluator:
             raw=raw,
             errors={},
         )
-        self._cache[key] = result
+        self._cache_put(key, result)
         return result
 
     def outputs(
@@ -166,7 +201,7 @@ class BatteryEvaluator:
         validated = skill.params_schema.validate_params(params)
         use_seed = self._seed if seed is None else seed
         key = (skill_id, _params_key(validated), use_seed)
-        cached = self._cache.get(key)
+        cached = self._cache_get(key)
         if cached is not None:
             return cached
         ids: list[str] = []
@@ -189,7 +224,7 @@ class BatteryEvaluator:
             raw=raw,
             errors=errors,
         )
-        self._cache[key] = result
+        self._cache_put(key, result)
         return result
 
     def compose_outputs(

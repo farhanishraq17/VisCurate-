@@ -65,12 +65,12 @@ class Action(_Frozen):
     Fields used per kind:
 
     * MERGE / PARAMETERIZE : ``primary`` (acted-on), ``secondary`` (survivor)
-    * SPLIT                : ``primary`` (the skill to split)
+    * SPLIT                : ``primary`` (the skill to split) + ``new_skill_id`` / ``fn_source``
     * REMOVE               : ``primary``
     * MODIFY               : ``primary`` + any of ``new_name`` / ``new_description`` /
       (``param_name``, ``value``) — output-preserving repairs the agent can make without code
-    * ADD                  : ``new_skill_id`` / ``new_name`` / ``new_description`` / ``family``
-      (the new skill is registered ``trusted=False`` and blocked from execution)
+    * ADD                  : ``new_skill_id`` / ``new_name`` / ``new_description`` / ``family`` /
+      optional ``fn_source`` (agent-authored code; untrusted and sandbox-gated)
     * RETRIEVE             : ``query`` (and/or ``primary``) — a no-op observation, logged
     * END                  : (no fields)
 
@@ -91,6 +91,7 @@ class Action(_Frozen):
     # add (agent-authored skill: registered untrusted, never executed in v1)
     new_skill_id: str = ""
     family: str = ""
+    fn_source: str = ""
 
     # retrieve
     query: str = ""

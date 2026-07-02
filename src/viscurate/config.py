@@ -108,7 +108,7 @@ class CurationConfig(_Strict):
     (parameterize) is flagged as losing a used skill (CLAUDE.md §3.5.7).
     """
 
-    budget: int = Field(default=50, gt=0)
+    budget: int = Field(default=200, gt=0)
     usage_fold_threshold: int = Field(default=1, ge=0)
 
 

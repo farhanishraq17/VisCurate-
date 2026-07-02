@@ -197,7 +197,13 @@ class AnthropicClient:
     by the SDK; it is never passed in source (CLAUDE.md §5 / org policy).
     """
 
-    def __init__(self, *, model: str = "claude-opus-4-8", max_tokens: int = 4096) -> None:
+    def __init__(
+        self,
+        *,
+        model: str = "claude-opus-4-8",
+        max_tokens: int = 4096,
+        enable_thinking: bool = True,
+    ) -> None:
         try:
             import anthropic  # lazy: the [agent] extra
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
@@ -206,6 +212,14 @@ class AnthropicClient:
             ) from exc
         self.model = model
         self.max_tokens = max_tokens
+        # Adaptive thinking is the recommended default for the curation agent. Disable it for the
+        # one-word LLM-on-descriptions judge: with thinking on, reasoning tokens count against
+        # ``max_tokens`` and can truncate the reply to empty text (which ``LlmJudge`` parses
+        # conservatively as DISTINCT, silently biasing the baseline). ``{"type": "disabled"}`` is
+        # accepted on Sonnet 4.6 / Sonnet 5 / Opus 4.7 / Opus 4.8 (the judge/agent model tiers).
+        self._thinking: dict[str, str] = (
+            {"type": "adaptive"} if enable_thinking else {"type": "disabled"}
+        )
         self.name = f"anthropic:{model}"
         self._client: Any = anthropic.Anthropic()  # ANTHROPIC_API_KEY from env
 
@@ -213,7 +227,7 @@ class AnthropicClient:
         response = self._client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            thinking={"type": "adaptive"},
+            thinking=self._thinking,
             messages=[{"role": "user", "content": prompt}],
         )
         return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")

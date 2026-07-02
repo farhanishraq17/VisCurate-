@@ -14,12 +14,21 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 from viscurate.benchmark.human_review import extract_review_slice, write_review_template
-from viscurate.benchmark.metrics import PRF
+from viscurate.benchmark.metrics import (
+    PRF,
+    divergence_by_true_relation,
+    mergeable_prf,
+    precision_on_distinct,
+)
 from viscurate.benchmark.runner import BenchmarkResult
+from viscurate.benchmark.tracks import Verdict
+from viscurate.equivalence.relations import Relation
 from viscurate.skills.model import SkillSpec
 
 __all__ = [
@@ -28,6 +37,23 @@ __all__ = [
     "write_manifest",
     "write_report",
 ]
+
+
+@dataclass(frozen=True)
+class TextOperatingPoint:
+    """A swept operating point for a score-bearing text judge."""
+
+    text_track: str
+    threshold: float
+    precision: float
+    recall: float
+    f1: float
+    false_merge_rate: float
+    hard_negative_false_merge_rate: float
+    divergence_all: float
+    text_over_merge_all: int
+    text_under_merge_all: int
+    selected: bool = False
 
 
 def _prf3(p: PRF) -> str:
@@ -110,6 +136,28 @@ def render_markdown_report(result: BenchmarkResult) -> str:
     if not any_ran:
         lines.append("_No text track ran._\n")
 
+    ops = text_operating_points(result)
+    selected_ops = [op for op in ops if op.selected]
+    if selected_ops:
+        lines.append("## Text-judge swept operating points\n")
+        lines.append(
+            "_Best F1_ sweeps the score threshold of each text judge at its own operating point, "
+            "so the fixed default threshold is not the only baseline reported.\n"
+        )
+        lines.append(
+            "| track | best threshold | P/R/F1 | false-merge (DISTINCT) | "
+            "false-merge (hard-neg) | divergence (ALL) |"
+        )
+        lines.append("|---|---:|---|---:|---:|---:|")
+        for op in selected_ops:
+            lines.append(
+                f"| {op.text_track} | {op.threshold:.4f} | "
+                f"{op.precision:.3f}/{op.recall:.3f}/{op.f1:.3f} | "
+                f"{op.false_merge_rate:.3f} | {op.hard_negative_false_merge_rate:.3f} | "
+                f"{op.divergence_all:.3f} |"
+            )
+        lines.append("")
+
     lines.append("## Notes\n")
     lines.append(
         "- **κ (human agreement):** pending real annotation — the judgment-laden slice is "
@@ -165,10 +213,12 @@ def _write_per_pair_csv(result: BenchmarkResult, path: Path) -> None:
             "is_hard_negative",
             "output_relation",
             "output_mergeable",
+            "output_score",
             "lpips",
             "dino_p90",
         ]
         header += [f"{n}_mergeable" for n in track_names]
+        header += [f"{n}_score" for n in track_names]
         w.writerow(header)
         for oc in result.outcomes:
             row = [
@@ -178,11 +228,141 @@ def _write_per_pair_csv(result: BenchmarkResult, path: Path) -> None:
                 int(oc.truth.is_hard_negative),
                 oc.output.relation.value,
                 int(oc.output.mergeable),
+                f"{oc.output.score:.5f}",
                 f"{oc.measurement.lpips:.5f}",
                 f"{oc.measurement.dino_p90:.5f}",
             ]
             row += [int(oc.text[n].mergeable) if n in oc.text else "" for n in track_names]
+            row += [
+                f"{oc.text[n].score:.5f}"
+                if n in oc.text and math.isfinite(oc.text[n].score)
+                else ""
+                for n in track_names
+            ]
             w.writerow(row)
+
+
+def _thresholds_for_scores(scores: Sequence[float]) -> list[float]:
+    finite = sorted({float(s) for s in scores if math.isfinite(float(s))})
+    if not finite:
+        return []
+    below_all = max(0.0, min(finite) - 1.0e-9)
+    above_all = min(1.0 + 1.0e-9, max(finite) + 1.0e-9)
+    return sorted({below_all, *finite, above_all})
+
+
+def text_operating_points(result: BenchmarkResult) -> list[TextOperatingPoint]:
+    """Sweep score thresholds for text tracks and mark the best-F1 operating point."""
+    rows: list[TextOperatingPoint] = []
+    for track in result.text_tracks:
+        if not track.ran:
+            continue
+        scored = {
+            pair: verdict.score
+            for pair, verdict in track.predictions.items()
+            if math.isfinite(verdict.score)
+        }
+        if not scored:
+            continue
+        candidates: list[TextOperatingPoint] = []
+        for threshold in _thresholds_for_scores(tuple(scored.values())):
+            pred = {
+                pair: Verdict(
+                    relation=Relation.EXACT if score >= threshold else Relation.DISTINCT,
+                    mergeable=score >= threshold,
+                    score=score,
+                )
+                for pair, score in scored.items()
+            }
+            prf = mergeable_prf(result.truth, pred)
+            safety = precision_on_distinct(result.truth, pred)
+            hard = precision_on_distinct(result.truth, pred, hard_negatives_only=True)
+            divergence = {
+                row.slice_name: row
+                for row in divergence_by_true_relation(
+                    result.output_track.predictions, pred, result.truth
+                )
+            }
+            all_row = divergence.get("ALL")
+            candidates.append(
+                TextOperatingPoint(
+                    text_track=track.name,
+                    threshold=threshold,
+                    precision=prf.precision,
+                    recall=prf.recall,
+                    f1=prf.f1,
+                    false_merge_rate=safety.false_merge_rate,
+                    hard_negative_false_merge_rate=hard.false_merge_rate,
+                    divergence_all=0.0 if all_row is None else all_row.disagree_rate,
+                    text_over_merge_all=0 if all_row is None else all_row.text_over_merge,
+                    text_under_merge_all=0 if all_row is None else all_row.text_under_merge,
+                )
+            )
+        if not candidates:
+            continue
+        best = max(
+            candidates,
+            key=lambda op: (
+                op.f1,
+                op.precision,
+                -op.false_merge_rate,
+                -op.hard_negative_false_merge_rate,
+                op.threshold,
+            ),
+        )
+        rows.extend(
+            TextOperatingPoint(
+                text_track=op.text_track,
+                threshold=op.threshold,
+                precision=op.precision,
+                recall=op.recall,
+                f1=op.f1,
+                false_merge_rate=op.false_merge_rate,
+                hard_negative_false_merge_rate=op.hard_negative_false_merge_rate,
+                divergence_all=op.divergence_all,
+                text_over_merge_all=op.text_over_merge_all,
+                text_under_merge_all=op.text_under_merge_all,
+                selected=op is best,
+            )
+            for op in candidates
+        )
+    return rows
+
+
+def _write_text_operating_points_csv(result: BenchmarkResult, path: Path) -> None:
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(
+            [
+                "text_track",
+                "threshold",
+                "precision",
+                "recall",
+                "f1",
+                "false_merge_rate",
+                "hard_negative_false_merge_rate",
+                "divergence_all",
+                "text_over_merge_all",
+                "text_under_merge_all",
+                "selected",
+            ]
+        )
+        for op in text_operating_points(result):
+            w.writerow(
+                [
+                    op.text_track,
+                    f"{op.threshold:.6f}",
+                    f"{op.precision:.6f}",
+                    f"{op.recall:.6f}",
+                    f"{op.f1:.6f}",
+                    f"{op.false_merge_rate:.6f}",
+                    f"{op.hard_negative_false_merge_rate:.6f}",
+                    f"{op.divergence_all:.6f}",
+                    op.text_over_merge_all,
+                    op.text_under_merge_all,
+                    int(op.selected),
+                ]
+            )
 
 
 def write_manifest(result: BenchmarkResult, path: Path, extra: Mapping[str, object]) -> None:
@@ -252,6 +432,9 @@ def write_report(
 
     paths["pairs_csv"] = out / "pairs.csv"
     _write_per_pair_csv(result, paths["pairs_csv"])
+
+    paths["text_operating_points_csv"] = out / "text_operating_points.csv"
+    _write_text_operating_points_csv(result, paths["text_operating_points_csv"])
 
     paths["manifest"] = out / "manifest.json"
     write_manifest(result, paths["manifest"], manifest_extra or {})

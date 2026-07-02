@@ -4,10 +4,11 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from viscurate.equivalence.param_alignment import load_param_alignment
 from viscurate.probes.build import ProbesConfig, array_sha256, build_battery, load_probe
 from viscurate.probes.coco import PERMISSIVE_LICENSE_IDS, coco_license_table, filter_permissive
 from viscurate.probes.manifest import CC0, License, ProbeManifest
-from viscurate.probes.oracle import freeze_oracle, verify_oracle
+from viscurate.probes.oracle import freeze_oracle, freeze_sweep_oracle, verify_oracle
 from viscurate.probes.synthetics import generate_synthetic_probes
 from viscurate.rng import SeedManager
 from viscurate.skills.library import build_builtin_registry
@@ -161,3 +162,21 @@ def test_oracle_seeded_skill_is_stable(tmp_path) -> None:
     h1 = {(e.skill_id, e.probe_id): e.output_sha256 for e in o1.entries}
     h2 = {(e.skill_id, e.probe_id): e.output_sha256 for e in o2.entries}
     assert h1 == h2  # fixed oracle_seed -> identical seeded-skill outputs
+
+
+def test_sweep_oracle_freezes_parameterized_bindings(tmp_path) -> None:
+    m = build_battery(_small_cfg(), tmp_path / "a", tmp_path / "cache")
+    reg = build_builtin_registry()
+    align = load_param_alignment("configs/param_alignment.yaml")
+    oracle = freeze_sweep_oracle(
+        m,
+        tmp_path / "a",
+        reg,
+        align,
+        oracle_seed=0,
+        skill_ids=["blur_gaussian_v1", "crop_bounding_box_v1"],
+    )
+    assert oracle.artifact_kind == "sweep_oracle"
+    assert oracle.alignment_version == align.version
+    assert any(e.skill_id == "blur_gaussian_v1" and e.params_key != "{}" for e in oracle.entries)
+    assert verify_oracle(oracle, m, tmp_path / "a", reg) == []
