@@ -80,6 +80,18 @@ def _params_key(params: Params | None) -> str:
     return json.dumps(params or {}, sort_keys=True, separators=(",", ":"))
 
 
+def _outputset_nbytes(result: OutputSet) -> int:
+    """Approx retained array bytes of an OutputSet (raw outputs + canonical rgb over the battery)."""
+    total = 0
+    for im in result.raw.values():
+        total += int(getattr(im, "nbytes", 0))
+    for c in result.canon.values():
+        rgb = getattr(c, "rgb", None)
+        if rgb is not None:
+            total += int(getattr(rgb, "nbytes", 0))
+    return total
+
+
 class OutputProvider(Protocol):
     """The text-blind interface comparators are handed (CLAUDE.md §1.2)."""
 
@@ -122,20 +134,27 @@ class BatteryEvaluator:
         *,
         seed: int = 0,
         max_cache_entries: int | None = None,
+        max_cache_bytes: int | None = None,
     ) -> None:
         self._skills: dict[str, Skill] = (
             dict(skills) if isinstance(skills, Mapping) else {s.id: s for s in skills}
         )
         self._battery: list[tuple[str, Image]] = list(battery)
         self._seed = seed
-        # Output cache. Bounded (LRU) when ``max_cache_entries`` is set — otherwise it grows
-        # unbounded, which OOMs a large-battery benchmark: every (skill, param-binding) output
-        # over the full battery is retained, and the subsumption grid alone probes up to 24
-        # bindings/skill/pair. The cache is a pure compute optimization — eviction only trades a
-        # recompute for bounded memory and never changes a result. ``None`` preserves the old
-        # unbounded behaviour for small in-process users (curation env, tests).
+        # Output cache. Bounded (LRU) when ``max_cache_entries`` and/or ``max_cache_bytes`` are
+        # set — otherwise it grows unbounded, which OOMs a large-battery benchmark: every
+        # (skill, param-binding) output over the full battery is retained, and the subsumption
+        # grid alone probes up to 24 bindings/skill/pair. A COUNT bound is fragile when per-set
+        # size varies widely (a canvas-expanding skill's OutputSet can be ~10x a size-preserving
+        # one), so ``max_cache_bytes`` bounds the cache by *actual retained array bytes* —
+        # giving a predictable memory ceiling regardless of which skills are probed. The cache is
+        # a pure compute optimization — eviction only trades a recompute for bounded memory and
+        # never changes a result. ``None`` on both preserves the old unbounded behaviour.
         self._max_cache = max_cache_entries
+        self._max_cache_bytes = max_cache_bytes
         self._cache: OrderedDict[tuple[str, str, int], OutputSet] = OrderedDict()
+        self._entry_bytes: dict[tuple[str, str, int], int] = {}
+        self._cache_bytes = 0
 
     # -- text-blind interface -----------------------------------------------------
     def comparator_view(self, skill_id: str) -> ComparatorView:
@@ -147,6 +166,8 @@ class BatteryEvaluator:
         self._cache = OrderedDict(
             (k, v) for k, v in self._cache.items() if k[0] != skill.id
         )
+        self._entry_bytes = {k: b for k, b in self._entry_bytes.items() if k[0] != skill.id}
+        self._cache_bytes = sum(self._entry_bytes.values())
 
     def _cache_get(self, key: tuple[str, str, int]) -> OutputSet | None:
         """Return a cached OutputSet, marking it most-recently-used (LRU)."""
@@ -156,12 +177,24 @@ class BatteryEvaluator:
         return cached
 
     def _cache_put(self, key: tuple[str, str, int], result: OutputSet) -> None:
-        """Insert into the cache and evict the least-recently-used entries past the bound."""
+        """Insert into the cache and evict the least-recently-used entries past the bound(s)."""
+        if key in self._cache:
+            self._cache_bytes -= self._entry_bytes.pop(key, 0)
         self._cache[key] = result
         self._cache.move_to_end(key)
+        nb = _outputset_nbytes(result)
+        self._entry_bytes[key] = nb
+        self._cache_bytes += nb
+        # Count bound.
         if self._max_cache is not None:
             while len(self._cache) > self._max_cache:
-                self._cache.popitem(last=False)
+                k, _ = self._cache.popitem(last=False)
+                self._cache_bytes -= self._entry_bytes.pop(k, 0)
+        # Byte bound (always keep at least the just-inserted entry so a lookup can use it).
+        if self._max_cache_bytes is not None:
+            while self._cache_bytes > self._max_cache_bytes and len(self._cache) > 1:
+                k, _ = self._cache.popitem(last=False)
+                self._cache_bytes -= self._entry_bytes.pop(k, 0)
 
     @property
     def battery(self) -> tuple[tuple[str, Image], ...]:

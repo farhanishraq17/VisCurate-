@@ -1,0 +1,3194 @@
+{
+  "manifest_version": "1",
+  "generator_version": "1.0.0",
+  "canon_version": "1.0.0",
+  "seed": 1234,
+  "entries": [
+    {
+      "probe_id": "syn_gradient_000",
+      "sha256": "7df686997a8eabe6cb51108997483909fb994dda497d5029dceff3e35cf4011f",
+      "domain": "gradient",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_001",
+      "sha256": "2739e66797228273459808e6469d840283abc3739982ee2b442aa62e65aa46c1",
+      "domain": "gradient",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_002",
+      "sha256": "7a94c3beebe4efbe1440fd89431bc1edc2fe1277fa1adfd1be0f92342e529e85",
+      "domain": "gradient",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_003",
+      "sha256": "ae6bf774d9d10e3a1c2a3be2975673f30bffc69bb1bc4badba0ebb2b0c636e42",
+      "domain": "gradient",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_004",
+      "sha256": "73880f633f43ec3093b06be8b6b5f21fe8bb1aadedd3b6c572abc2f1949c88af",
+      "domain": "gradient",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_005",
+      "sha256": "ebb09acd52ebaf934425b0a378ca5ca97c55e0784a4b2fe0aec1200c8c95f39a",
+      "domain": "gradient",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_006",
+      "sha256": "186f11921311a85d6fce421e2d935123dda8dd1b2a6f02682d9d2465a658c957",
+      "domain": "gradient",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_007",
+      "sha256": "1d34f4ba6d5f0524334cd239eef54b677f355a1755113c68edb46a0e227ad023",
+      "domain": "gradient",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_008",
+      "sha256": "3b2e41318efbde8698224d67aaaedb8016267848c36a92b4cd0c656271615312",
+      "domain": "gradient",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_009",
+      "sha256": "3f5b97f15b04cb13b6e7684dae0ef4766b4456a4e663456548ba8426fd494ef6",
+      "domain": "gradient",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_010",
+      "sha256": "51a44cf28e064998d44f152cc17267e850adff7b428cae99fc79edfc851bdcda",
+      "domain": "gradient",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_011",
+      "sha256": "b8a1160e733fd58654db3a663f12818c07de151c8e4912ad80862d7e639176b8",
+      "domain": "gradient",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_012",
+      "sha256": "844a66d933cc05168b0be9cbd4420673ce9e18a2227201e6d217ab905701f3e3",
+      "domain": "gradient",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_013",
+      "sha256": "c7b03e8d4864329bb96991ed6f9af0189f17382ead39213a026af1cdcba1cc54",
+      "domain": "gradient",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_014",
+      "sha256": "2ad5ddbaf132ef56aee78af6db1cb7632bb67c4b8b6bf90c18d96f7ac1ebb29a",
+      "domain": "gradient",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_015",
+      "sha256": "0b2e0204d6b019f48330b652fd55f65b64b426b3a5895f8f5f75b75bee42aa0c",
+      "domain": "gradient",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_016",
+      "sha256": "40fc0d81946cac2d2f276acba0dc978b0da9d3f1cc8a69f0d1dba5b51308074f",
+      "domain": "gradient",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_017",
+      "sha256": "7a94c3beebe4efbe1440fd89431bc1edc2fe1277fa1adfd1be0f92342e529e85",
+      "domain": "gradient",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_018",
+      "sha256": "0d4d64a6217dd6980d9ba46e6baaf66aa7e812e79387ff2cc3f2fcd1e8bc21fe",
+      "domain": "gradient",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_019",
+      "sha256": "95628d2d11f5265f6e8860366207b26b526f28b888e2c8186def68eb2d042275",
+      "domain": "gradient",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_020",
+      "sha256": "ebb09acd52ebaf934425b0a378ca5ca97c55e0784a4b2fe0aec1200c8c95f39a",
+      "domain": "gradient",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_021",
+      "sha256": "cac86759f84f0a7d0f81cc81545260e1afd18fe892cc40670ac376a9db9e2628",
+      "domain": "gradient",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_022",
+      "sha256": "9b6229bd5935b0c8acf7d7acc7c2bcda9ac8b73b44c166220f5f08960d0329f4",
+      "domain": "gradient",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "radial_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_023",
+      "sha256": "3b2e41318efbde8698224d67aaaedb8016267848c36a92b4cd0c656271615312",
+      "domain": "gradient",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "angular_gradient"
+    },
+    {
+      "probe_id": "syn_gradient_024",
+      "sha256": "0aaf48ded19e454deddc90c672863444fecce58d47b545efa9aadc36418b1892",
+      "domain": "gradient",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "linear_gradient"
+    },
+    {
+      "probe_id": "syn_texture_000",
+      "sha256": "3b7ac7ba99c70659c0ca8627ec6f612dca383d556ffe21adf83a31b300bd27cf",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_001",
+      "sha256": "88c50ddbfa13c8e435423a0cf0ac49d4ad4c3b4d3424baf87a7276daed3c8a3f",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_002",
+      "sha256": "0bb19164e525c01d93c0ba12e83e496e14666860bd384f62ede25c8e4d233c34",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_003",
+      "sha256": "31c0996690d08ced76623ace751c9e89bcbb2b7ca1da96d1175e3b6c1b08263f",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_004",
+      "sha256": "fd5091d4af0376622f51052839053329735245dade4c12ba983ea3eef5d15f74",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_005",
+      "sha256": "d58d42f9192458c21bcd88c46eefbc2ed71513e3ff5b16173cdb4bce37ae3ba6",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_006",
+      "sha256": "edb204537ad4a44d60c9112a17fdce27228dcbe8cc1ffcb5cc04ecc9d5f76357",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_007",
+      "sha256": "ca9519d538dbc07acc2aea8cbbcabfd177e539b526a641beeac220d8a69cdfd5",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_008",
+      "sha256": "09c789114c15a4077928e55a52eb96620bc69bddaac1488b20d50f8819516bfe",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_009",
+      "sha256": "afa98be99bf99f3198e3d7b9bad099e5ed8ebb6873137e82225ee0fc4d29679a",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_010",
+      "sha256": "c8180ed15e92a9c9166a54ebefc2c91d53254993311265e7178ff41360fc387d",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_011",
+      "sha256": "a0c1a5dc0baff60fa72fe1d764eac8aced2bdc0b212a7d563a424ab51e515f26",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_012",
+      "sha256": "240c737cfda9d0cb5d9d4d89ed39aef925203dd2cd43f8aa1d482636e6addcd3",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_013",
+      "sha256": "e41a9cd908ea7cb61a866d85d0abc7d857f21799ba2df89330743a17dcd6e664",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_014",
+      "sha256": "8047ea5cfd92a69570260f487bcbc135f65f7ee07e310b0fc74b7fee8ffa3f4a",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_015",
+      "sha256": "97259bd293aa04209e93b3e28ce18669f3f7df6f0fd244a62bdc6615bdd43ff5",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_016",
+      "sha256": "8e411c31e258273b32ba33780d51fb67cba713f4472289b0a6ddba9e87445051",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_017",
+      "sha256": "2abf8f7866c746f677106a05ef60b9d6170c55af09398de1a6aa606fb354d198",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_018",
+      "sha256": "4dbdb1df6b623c38dcf1435f19d0f349bfa72d9ff40646cd6e4ddf0af13713d3",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_019",
+      "sha256": "67ac3f3b91392e8bd9417d5779bd6c873c98e9bd1afa2b81b6e25d2d52c56a5e",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_020",
+      "sha256": "d6fb78aa3812b204104fa4ea2fd9e5e834a2471d639ab1ea14177cf68990b7c6",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_021",
+      "sha256": "335c2d838234109ffe93123c0bd48d22f9ca1a5ce1d77962b600f4128cc6f8e9",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_022",
+      "sha256": "76f7f72a520db21e0e8d4df17200c277b8c80e653e2bff0755f9ffe3a8d7693c",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_023",
+      "sha256": "34b88cfdd0db0e6c51259557d741036c8c511be000c32b919d6d344a367cd099",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_024",
+      "sha256": "411f10938979940854e80f8ff89b40c6699505a2663740b1b32010f06813cfb0",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_025",
+      "sha256": "63a0b8dbd9f8edaee8cfeba27fd1fb4ee68676f8a0fd2b75677cc6869fae0f4c",
+      "domain": "texture",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_texture_026",
+      "sha256": "8779e3bf5560f3dbfd69ff50e67f42904c6911c2c2188ef1f0dc674af53c11fb",
+      "domain": "texture",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "stripes"
+    },
+    {
+      "probe_id": "syn_texture_027",
+      "sha256": "24dd1b7fb59564ad6b9948f89700c7658482e71f9bd6f05a19cf78c17a2a14ff",
+      "domain": "texture",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "gabor"
+    },
+    {
+      "probe_id": "syn_texture_028",
+      "sha256": "a31ea5b5e30844a5677f5773ddaf7b8bcfabe09a672ec9afab075c95864dcf06",
+      "domain": "texture",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "value_noise"
+    },
+    {
+      "probe_id": "syn_texture_029",
+      "sha256": "9d48aaa39f7997652a17951b07c60dcd24b95373bc4ffbe92bb40764485efde1",
+      "domain": "texture",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "checkerboard"
+    },
+    {
+      "probe_id": "syn_shape_000",
+      "sha256": "33ae30d725a9893253cc48d89bcdec19f0ebc91407b21de609dd15f38e2d4f21",
+      "domain": "shape",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_001",
+      "sha256": "dee88ff7484113126b04a99181385aa993aa937ac9a66b75d80898d99c6f4b89",
+      "domain": "shape",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_002",
+      "sha256": "d2f914ea8d73d7317930a894412f38206550c5208007ee4ecdbb91d2e532124b",
+      "domain": "shape",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_003",
+      "sha256": "389078623f3c17b417db598646e696e8a888114fbbd5f981e81ca69a87803b6c",
+      "domain": "shape",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_004",
+      "sha256": "d4fb3dc91c56c31fc50973ee7f506e60d1b43616e65c694661c2bdb4e64b22a4",
+      "domain": "shape",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_005",
+      "sha256": "b095707cbd8c059ffe8faea7f4ed6cd5960c20337c8a5f1d1c4c0ef3353b6314",
+      "domain": "shape",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_006",
+      "sha256": "b6e6935c7b5d6f3d0e4e8b6385e1b1cb95e831d55335833a4b6e15571b2cfa51",
+      "domain": "shape",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_007",
+      "sha256": "76078ab45531f9066bcd68c7c259679286cb89a34e6831f8778cea24d9386090",
+      "domain": "shape",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_008",
+      "sha256": "a6dd489ae8e980f8237ca8ddefe4bfe2fb874748ef5b1d1318ab05e1c18c0228",
+      "domain": "shape",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_009",
+      "sha256": "841efdcb4a364db1913688f4aadcc6ec2fffb1fec80438a6049258c14bf801cd",
+      "domain": "shape",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_010",
+      "sha256": "88a0635b2fc1f134ca3c29a042c27990c41c4e44fac4bfa963dbc24329b5592a",
+      "domain": "shape",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_011",
+      "sha256": "d5be3a58bcaa6ac3d1d73e32bb0362dc063a73cfc9edb50f30e614c21d525b6e",
+      "domain": "shape",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_012",
+      "sha256": "03b45cae9964193cfe5b97a459fbc83cf58545eb2696bf14ae4408c095227313",
+      "domain": "shape",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_013",
+      "sha256": "904a0b02099fc81a691f48c3543bd2987ea0fc73df09388b1af4218958db282e",
+      "domain": "shape",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_014",
+      "sha256": "02a099d9e7913aa58a018582b86eca59f2fc7d775bd6c89864e7cc291287173a",
+      "domain": "shape",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_015",
+      "sha256": "c1b50608808cf2ed0f3f5b9f147c511a8365ddaa2e89e5c1a83186291a740b38",
+      "domain": "shape",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_016",
+      "sha256": "e18fc8d50dc292e14fce38318eaa9e8e7e2d1243278e18bdd04f8a6787a3e0e0",
+      "domain": "shape",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_017",
+      "sha256": "ba3baaf2f904f403b7671ece9a41e244012ad5d0ecb1097b9d59c775ef37bfe3",
+      "domain": "shape",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_018",
+      "sha256": "830f65a4c39e426af1e6760b12c3f719a4d74b2b8704b22ac4f8b2245f9884ba",
+      "domain": "shape",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_019",
+      "sha256": "6bd1d96c6ced170291fed31291460cff2ee6c94b072a582e63760cd5864fce90",
+      "domain": "shape",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_020",
+      "sha256": "d785c9c35501e33b97dbb0a8428744c06783ff1824754cca5c836c355b6e7cb5",
+      "domain": "shape",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_021",
+      "sha256": "d11d7165d4c381073914eaa72e0b1dc4fa29db2f6f0bd434431f2c03ad8a3168",
+      "domain": "shape",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_022",
+      "sha256": "ad3266f2762d6e81efc0b44b02b88f2d22588ae245ca47cdafe2f2ac514157ac",
+      "domain": "shape",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_023",
+      "sha256": "fa298c58b07725f194294a412db31577e6a4ee458c47159f7ca620f4f4961ac1",
+      "domain": "shape",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_shape_024",
+      "sha256": "b1e578a494da9bdeca81a8418d6bad40c30c8ed9b0570d52730fa2c978da8b5e",
+      "domain": "shape",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "shapes"
+    },
+    {
+      "probe_id": "syn_document_000",
+      "sha256": "fa8bd78f84c0333f893eb7d99357945c6c7abdf12265ba7eb7652cf777d7a5fb",
+      "domain": "document",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_001",
+      "sha256": "80f74685b768fe47cee779f5fd24ec0e79dc43e40db734fda309f7c3c3a7e132",
+      "domain": "document",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_002",
+      "sha256": "75be2724b4f92df5584dd44eadce45b73df100737f67dd56a250fa7ccc7ce5c5",
+      "domain": "document",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_003",
+      "sha256": "0a23edb862b85a671b1f0e9dc89acb0a4db694e663498f972d8083fc6197f406",
+      "domain": "document",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_004",
+      "sha256": "5899e3ee853a9b6d4876db9313e9e135f26cbc2e6c05b4b63c45a129b62090a8",
+      "domain": "document",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_005",
+      "sha256": "5707c88f85cc53307adae8e8771b61808b0d0b9bf4ba1756aabd29917abcde0c",
+      "domain": "document",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_006",
+      "sha256": "680964f4e824f97ded810743f5878fe8a7fde05eb81bb2ce9f54dcaf1ee55f53",
+      "domain": "document",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_007",
+      "sha256": "fcf571c15489f0ccf066daafdba6ba1dcb3ecce02a881913be8df4367cf9cd49",
+      "domain": "document",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_008",
+      "sha256": "d3abff594a8fc2139bcf9ff276549dd28b2582218efc3ad864eff57b85505949",
+      "domain": "document",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_009",
+      "sha256": "cf1d20de1a9ef3764d5c0338fe8facf917b03e1cf7d7f1c45d732bd8bcbbb83e",
+      "domain": "document",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_010",
+      "sha256": "468d8281d31b09d3b0b74bf4531229b51b4982921b132aa4a20c1bee56442ad8",
+      "domain": "document",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_011",
+      "sha256": "8ee53f8a7aeecc4db463592b32360416f9f3bfe1357570a4452dd52152ab3667",
+      "domain": "document",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_012",
+      "sha256": "e62d38dde50f7d1a4f3c2b165a300f7838861aa0929bafae88de7775cc0d49a6",
+      "domain": "document",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_013",
+      "sha256": "0a38b2c64fb0bad21692a76ff5d84f5b3c39f029ff982b106eeab2a1b11b1d37",
+      "domain": "document",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_014",
+      "sha256": "7536f0fef5eced68cc14711a7f87e8bb513d2b8b2749ba2e45f5cc5fcb5a75bf",
+      "domain": "document",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_015",
+      "sha256": "f814d6b705e5d8aa4f164a295d2cd61312a4bfadce06014c9b1a4593cddb022f",
+      "domain": "document",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_016",
+      "sha256": "a0cbfb4ebb0d9a38c68f55c9c5b7833e3720edc604b6879814e2f42a40453929",
+      "domain": "document",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_017",
+      "sha256": "2c392def4821c50a178f2c697d693924c070f936f4c3c0b6643d870a5c3af678",
+      "domain": "document",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_018",
+      "sha256": "919f11953357591f7248be15bd761a20cab8712eec7621a7016c0e8e998721ed",
+      "domain": "document",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_019",
+      "sha256": "88858f67eb723f5a7db4727427f1e5b190681362be10e988e3afb88c0de4e329",
+      "domain": "document",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_020",
+      "sha256": "3656e83f7f533f35b37bbc09bdeab0e5a421f7fc2c21c1ec0048f3a6043b038c",
+      "domain": "document",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_021",
+      "sha256": "fcb31291a32d47cdbf9c8e206f2365b6103e3028911e3e35741637f53d5f71df",
+      "domain": "document",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_022",
+      "sha256": "f2c3766bf962bbc95985cfaa5f6c0c29c221b2c52939f5c2ba90257fa53b1c71",
+      "domain": "document",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_023",
+      "sha256": "ca06b872e89ea523f063b5f12f14bb51f025bb44cec82bd73af84fd155d7613c",
+      "domain": "document",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_document_024",
+      "sha256": "17e730ce5fb9f8a5d70420afb6e7ab2b92277cea198cac7b3b0297b54f64274d",
+      "domain": "document",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "document"
+    },
+    {
+      "probe_id": "syn_colorchart_000",
+      "sha256": "48ccc8a9d52f2c1e4ececcb539ca5b6e42b97c469d05ba1e69d15eabc74881c1",
+      "domain": "colorchart",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_001",
+      "sha256": "ced7f6b0b82f57a941b85c536ac4b3c0351a74969890b4a3c333cd0da942844d",
+      "domain": "colorchart",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_002",
+      "sha256": "67fd544882a68d357e0193174dd010c5b2910a4b71178e320f4fc8d35141a619",
+      "domain": "colorchart",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_003",
+      "sha256": "b57a9bc9a4fc938cb7bf8c6db8211527c35625c0365ad62553cf8d0f495fdbd6",
+      "domain": "colorchart",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_004",
+      "sha256": "e52bc191f4b922a8da99abbd8244d4e6943b62315e6b789b590aaf6215d371db",
+      "domain": "colorchart",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_005",
+      "sha256": "3ac85443ff04b322bbcd56ed37ff61aea03ed6f47637f53d88fd2c027ba2dfb9",
+      "domain": "colorchart",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_006",
+      "sha256": "fdaa3456302549926134f45c4b6039cd73450181cd6762dbe5a50d66134e7ca0",
+      "domain": "colorchart",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_007",
+      "sha256": "573f6a422c9a373464f5f7f489172efc4d31479e15bd667019cb4c34b61ca752",
+      "domain": "colorchart",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_008",
+      "sha256": "fea7c911843881cbcd1fde9fc4fae85aa9f6aeb0f969b04dd42593eefa557e49",
+      "domain": "colorchart",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_colorchart_009",
+      "sha256": "c174f21898d1caf8c5b1833df08d3af62aeb2e711caf94a4ea907e2cff2c9103",
+      "domain": "colorchart",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "color_chart"
+    },
+    {
+      "probe_id": "syn_noise_000",
+      "sha256": "3d7f32deadfee02da095d6e99169f93c4acd6321e228ea3c0cb16f837a62251a",
+      "domain": "noise",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_001",
+      "sha256": "c57fbbdf5d9ebc4f9cc783c99754ad214513e1faf400312527eec89a18f9bd9c",
+      "domain": "noise",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_002",
+      "sha256": "7f72661393f9a1325cb3b24df868802b69c2eaf02a3bd158a8a84e518d546765",
+      "domain": "noise",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_003",
+      "sha256": "4b1bceb6088d6772e37a21c9ce56191b72e119c461c4b1056beb1157ef8980a3",
+      "domain": "noise",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_004",
+      "sha256": "284b5f57d45358a6d8f33d6bdcc09810d4d0bd4c57a226cebe65b6faaf0bb05c",
+      "domain": "noise",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_005",
+      "sha256": "870e539870cedc96f6e16b6fc58fa911a5f13cdb34b62346551f87bf59879d61",
+      "domain": "noise",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_006",
+      "sha256": "a9633e887121efcd35fa9c1f9f7459f7d6e7f950c1be30cbb190d7d2542d637b",
+      "domain": "noise",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_007",
+      "sha256": "04cb281f7b1468d2f22935277718c5a6f0bdddba4e8b4a66c7dfbaeedc45947f",
+      "domain": "noise",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_008",
+      "sha256": "7205e4188896f8816991e5acfd78834a9a22a002f7cfd959b2446318cab85d16",
+      "domain": "noise",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_009",
+      "sha256": "bef9e1569c477e1fb3f2c636dab498528aef90e1007088ebf2a27f6056f6c2b1",
+      "domain": "noise",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_010",
+      "sha256": "a2267b57afab063764d2e642f45bc977a918dc1098b5f7ffdb95d0bb5e00de7c",
+      "domain": "noise",
+      "channel_format": "rgb",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_011",
+      "sha256": "b9834e4e32a9b3be9b91c3bdd9751657a5a90dff2f2e34545f7ea66a081c11f4",
+      "domain": "noise",
+      "channel_format": "rgba",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_012",
+      "sha256": "13ec4ff67a368bda85aeb587ab038c31ba11172b447e38659af7bf7d28afc2da",
+      "domain": "noise",
+      "channel_format": "gray",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_013",
+      "sha256": "3626a6af87086d3da7af6f521ed8a35c81251e880f7a9f5ac4df73ea933e1a02",
+      "domain": "noise",
+      "channel_format": "gray16",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "syn_noise_014",
+      "sha256": "7edc70bc223afbba01d84de1ceccd2446851c01b93bd912a384deeefbe77401c",
+      "domain": "noise",
+      "channel_format": "palette",
+      "height": 128,
+      "width": 128,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "white_noise"
+    },
+    {
+      "probe_id": "deg_black",
+      "sha256": "616411fa16baeab795253cc496f10cfd64979ba6d447b1c9e476359f5803dd0d",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 64,
+      "width": 64,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "all_black"
+    },
+    {
+      "probe_id": "deg_white",
+      "sha256": "4b8729e722ee6d3ecdeab350fd50843e73ece17b90503805627446beb6a80303",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 64,
+      "width": 64,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "all_white"
+    },
+    {
+      "probe_id": "deg_single",
+      "sha256": "b9a7a533cd4f54afe75b960ace6c04aaed5a7570a4d26794c68354609160072e",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 64,
+      "width": 64,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "single_color"
+    },
+    {
+      "probe_id": "deg_1x1",
+      "sha256": "f96353f6056e048507f38dd8fca47bc3ddd11bc23c4c2d7b35e78056eb6e10d2",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 1,
+      "width": 1,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "one_by_one"
+    },
+    {
+      "probe_id": "deg_thin",
+      "sha256": "4bc7d9ae955f3c6be9661757956e80b6c227069626049e211378bf1815428ea2",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 1,
+      "width": 64,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "thin_1xN"
+    },
+    {
+      "probe_id": "deg_tall",
+      "sha256": "d7e7d5bddba8698b7f1c8d985b84182585ff52e621d0884cc9a47d76489e788e",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 64,
+      "width": 1,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "thin_Nx1"
+    },
+    {
+      "probe_id": "deg_highres",
+      "sha256": "4403df9e4346ae7c67374a15ffb4067d410821f0a93ecfef5d8858e79f8ccba8",
+      "domain": "degenerate",
+      "channel_format": "rgb",
+      "height": 1024,
+      "width": 1024,
+      "source": "synthetic",
+      "license": {
+        "name": "CC0 1.0 (public-domain dedication)",
+        "spdx": "CC0-1.0",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "self-generated",
+      "notes": "high_res_1024"
+    },
+    {
+      "probe_id": "coco_000000425952",
+      "sha256": "8eac716fe83510c7a6285e123754b84320357a776b153b0b6d1a84c48be84d88",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #425952; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000425952.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000280150",
+      "sha256": "dbda3848fb92f946bfe68d2ed004852dc736917211996266c727d3a1b25c17a0",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 462,
+      "width": 616,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #280150; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000280150.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000309591",
+      "sha256": "82626772ae4338db291814c2fdb62fd71c3d3e119762c3ee4203fc32084a6d98",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #309591; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000309591.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000147874",
+      "sha256": "19b61562301ab4518d087c122c6d73e06e6c937003a3b7c18fd13d115a21789d",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #147874; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000147874.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000257967",
+      "sha256": "3cc21db1d19f1b4dde12ea777828c5e9a0a4ea2afd2643c3ea19b1615d734913",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #257967; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000257967.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000163121",
+      "sha256": "d1d3cf6d4c000d1600e1c9d0c6e687b02bc1198a50b32aadad9a75b213aa1c1f",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 480,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #163121; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000163121.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000005905",
+      "sha256": "0a125a8df98d7aebb8fb4c05f0cb5a2d7e4eff171009492e02af56899cb07510",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 480,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #5905; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000005905.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000118017",
+      "sha256": "7d1ab74686aadca512d1e43fd913c3caef350c91965b09fa1655192d1cff333c",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #118017; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000118017.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000400214",
+      "sha256": "51d60ca1db0f0cad43d39a8299ca58adb422b730f3513cf12d29840f6cc85a70",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 423,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #400214; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000400214.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000456401",
+      "sha256": "13719f71b6f5c9fef491d170e5737074edd1f55acc0aa48340a2c598a6864de7",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #456401; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000456401.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000024083",
+      "sha256": "718d890e2e84aac7e4e28347204c44f2d1b151a87beeb11f2467f8c0f3c5632f",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 425,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #24083; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000024083.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000372450",
+      "sha256": "8633db9e3b1334731c73a3d6185a956519cd53bb5ba4b8f437684fceccc4f8b8",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #372450; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000372450.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000534550",
+      "sha256": "81ad670b7520a18684302af3a2af16f56b6fc652bb9e2cca20ca6de5ae56f095",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 426,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #534550; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000534550.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000535680",
+      "sha256": "efa1c103b43c78a794530e05b6b068f374f3539c055d064d5819fc4e77959e42",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 425,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #535680; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000535680.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000540944",
+      "sha256": "e38ee8ba8526017843f2dc203e07d0e51c105f9f9d13593ad300ee8f8c815641",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #540944; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000540944.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000362756",
+      "sha256": "f05b9cb25f6e57cc561efddb9850b06995876f810a83a8e6c05aca9ff2f7900f",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 392,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #362756; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000362756.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000523525",
+      "sha256": "077da6d590ff31b74bc6ba2903cba9ba38f8583cfd27f4e59282ba0db4033eed",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 374,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #523525; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000523525.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000091168",
+      "sha256": "2589f09a68d236a7cf1f96136bad280913c7093f699b5a94f3d43e4f92390dd6",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #91168; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000091168.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000311576",
+      "sha256": "d79135cf983da60955742b4bdc9d6d7f3046a39afeb5af4f660e94578a45e91c",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 581,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #311576; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000311576.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000069160",
+      "sha256": "42fd491d5432a26ddbd899f3eed91bd9d8e27d70f3cd9f32a808b8d4c680ad8d",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #69160; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000069160.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000433926",
+      "sha256": "3b6a5dd88eb659e7f030e1082c649bc2d17616fd760f94c7d63dac6c1af1cfcb",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 356,
+      "width": 500,
+      "source": "coco-test2017",
+      "license": {
+        "name": "No known copyright restrictions",
+        "spdx": "",
+        "url": "http://flickr.com/commons/usage/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #433926; No known copyright restrictions; source http://images.cocodataset.org/test2017/000000433926.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000439073",
+      "sha256": "5c89d68214f6447036759c5cbbe75f206ebdd19d9ab27dd67be2e794f47d3c75",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 375,
+      "width": 500,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #439073; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000439073.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000022053",
+      "sha256": "1d471bc6faf27c73138b30747d313d4507512879538b42e560d35dcdcc4d5894",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 360,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #22053; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000022053.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000105130",
+      "sha256": "41edbb0fe9e53827bab4ffbfe884ecbce4ce029108413c33b309fb368339ba7b",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #105130; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000105130.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000026080",
+      "sha256": "bafea8042e0edb251a740917573d41dbe47d2ce0ae55c1beb5525792f3867de7",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 428,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #26080; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000026080.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000050891",
+      "sha256": "6a8fd2fae46cd5e03205978bf6fe6053ab173815bb608e90ad87dc78c070a54f",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 480,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #50891; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000050891.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000114743",
+      "sha256": "3995e21468fdab4f3558b66d3897ec67a97937a85849d10c89a7470aea91940c",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #114743; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000114743.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000345133",
+      "sha256": "a6d651e5cb2b9e57ddf8a2c48b0d23430c4349c575d6a7228fe30c9628ad4a45",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 500,
+      "width": 375,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #345133; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000345133.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000048928",
+      "sha256": "7d276c7341f7cb4dee0771257cf8aa80edf8246079795fa68b4dc49a692f8063",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 477,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #48928; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000048928.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000563623",
+      "sha256": "df5f540012e38da3e5c40cb3bf654d674a3c609a64d30b60fa11eaeae7d27650",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 431,
+      "width": 500,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #563623; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000563623.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000308958",
+      "sha256": "35d428a6e3888f0b2a7b316ba759e33f57300573f006bce5f18d74e9c5eeae2e",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #308958; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000308958.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000503048",
+      "sha256": "3019ddeddb192cccfdfd53bc79919b31aa0589c0e253aa56c11042958787d0ea",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 359,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #503048; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000503048.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000249383",
+      "sha256": "803005d4641ab21a4da53fa3ebaffb6db08c12cb72281764857abb56bf96e468",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #249383; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000249383.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000495429",
+      "sha256": "dcfbea75f2a0763961cf2bd60fc6f1a1451059579512f92ae330c633edd50919",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 418,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #495429; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000495429.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000348153",
+      "sha256": "df448017bc9ad308521df415a6e1fbe6349d25ad5527a0a261efc22b4c628647",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #348153; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000348153.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000387668",
+      "sha256": "0a15c10314b90642fb967145bb9d53cced767227870d4127a6fd906ed8672146",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #387668; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000387668.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000516042",
+      "sha256": "e37f44ee20430e34fac6949f959fcbb552b121f2d29999a9c346fb6581e11b28",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 489,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "No known copyright restrictions",
+        "spdx": "",
+        "url": "http://flickr.com/commons/usage/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #516042; No known copyright restrictions; source http://images.cocodataset.org/test2017/000000516042.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000554817",
+      "sha256": "93b4462a070ddd00f8b29b2fd794634dd5d3712aa56dff5a779eca1f4b56c8bd",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 480,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #554817; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000554817.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000350168",
+      "sha256": "4d5263b729f4d78e0434f9920c84909b2ebbed06a812810f76cf1600b81fcbae",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 640,
+      "width": 426,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #350168; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000350168.jpg",
+      "notes": "natural photo"
+    },
+    {
+      "probe_id": "coco_000000082925",
+      "sha256": "e71a71d9422cd9f695ea1fee8882a24dcea6e562be1d47da9bf491e60d870fc4",
+      "domain": "natural",
+      "channel_format": "rgb",
+      "height": 427,
+      "width": 640,
+      "source": "coco-test2017",
+      "license": {
+        "name": "Attribution License (CC BY 2.0)",
+        "spdx": "CC-BY-2.0",
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "redistributable": true,
+        "allows_derivatives": true
+      },
+      "attribution": "COCO test2017 #82925; Attribution License (CC BY 2.0); source http://images.cocodataset.org/test2017/000000082925.jpg",
+      "notes": "natural photo"
+    }
+  ]
+}

@@ -25,6 +25,8 @@ data/oracle/
 # Corrupted libraries L_ρ — regenerated deterministically from (L0 + corruption log).
 data/corruption/
 results/
+# Local pre-Phase-4 results snapshot — large, generated, not for the repo.
+results_before_phase4/
 *.npz
 *.npy
 

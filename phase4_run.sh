@@ -80,4 +80,5 @@ set -x
     --llm-anthropic \
     --llm-anthropic-model "$JUDGE_MODEL" \
     "${THINK_FLAG[@]}" \
+    --max-cache-entries "$MAX_CACHE" \
     -o "$OUT"

@@ -542,13 +542,29 @@ class CurationEnvironment:
         *,
         thresholds: ThresholdConfig,
         seed: int = 0,
+        max_cache_entries: int | None = 256,
+        max_cache_bytes: int | None = None,
         **kwargs: Any,
     ) -> CurationEnvironment:
-        """Build the environment + its verifier evaluator over ``skills`` (the L_ρ library)."""
+        """Build the environment + its verifier evaluator over ``skills`` (the L_ρ library).
+
+        ``max_cache_entries`` bounds the evaluator's output cache (LRU). It defaults to a
+        bound — *not* ``None`` — because one episode probes many (skill, param-binding) outputs
+        over the whole battery across up to ~200 steps, and retaining them all OOMs the job (a
+        single Qwen3-4B run reached ~146 GB RSS and was OOM-killed). Eviction only trades a
+        recompute for bounded memory and never changes a result (§3.5.1). ``None`` restores the
+        old unbounded behaviour.
+        """
         registry = SkillRegistry()
         for s in skills:
             registry.register(s)
-        provider = BatteryEvaluator(list(skills), battery, seed=seed)
+        provider = BatteryEvaluator(
+            list(skills),
+            battery,
+            seed=seed,
+            max_cache_entries=max_cache_entries,
+            max_cache_bytes=max_cache_bytes,
+        )
         return cls(registry, provider, thresholds=thresholds, **kwargs)
 
 

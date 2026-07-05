@@ -511,6 +511,8 @@ def _cmd_curate(args: argparse.Namespace) -> int:
             battery,
             thresholds=cfg.thresholds,
             seed=cfg.run.seed,
+            max_cache_entries=(args.max_cache_entries or None),
+            max_cache_bytes=(int(args.max_cache_gb * 1_000_000_000) or None),
             alignment=alignment,
             perceptual=perceptual,
             semantic=semantic,
@@ -933,6 +935,22 @@ def build_parser() -> argparse.ArgumentParser:
     p_curate.add_argument("--no-ml", action="store_true", help="skip ML backends (EXACT/SUB only)")
     p_curate.add_argument("--clip", action="store_true", help="add CLIP as a 2nd semantic view")
     p_curate.add_argument("--max-steps", type=int, default=None, help="cap on agent steps")
+    p_curate.add_argument(
+        "--max-cache-entries",
+        type=int,
+        default=256,
+        help="LRU bound on the verifier output cache by ENTRY COUNT (0 = unbounded). Caps the "
+        "episode's accumulated (skill, param) OutputSets so a long run does not OOM the job; "
+        "eviction only trades a recompute for bounded memory and never changes a result",
+    )
+    p_curate.add_argument(
+        "--max-cache-gb",
+        type=float,
+        default=0.0,
+        help="LRU bound on the verifier output cache by RETAINED BYTES, in GB (0 = off). More "
+        "robust than --max-cache-entries when OutputSet sizes vary widely (canvas-expanding "
+        "skills); gives a predictable per-process memory ceiling for parallel sweeps",
+    )
     p_curate.add_argument("--actions", default="", help="JSON file of scripted actions to replay")
     p_curate.add_argument(
         "--queries-dir", default="", help="Phase-7 query dir for query-derived UsageStats"
