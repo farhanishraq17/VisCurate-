@@ -1,0 +1,40 @@
+# =============================================================================================
+# A1 Corpus A — which published mapping rows each functional family corresponds to.
+#
+# The published tables map TRANSFORM CLASSES (random wrappers). This file records, per family,
+# the rows whose named classes wrap that family's functional core. It is the join that lets the
+# claim-vs-execution matrix be built over exactly the pairs the tables actually name, and it is
+# the honest statement of A1/01 §3's caveat: the tables supply the CANDIDATE PAIRS, the
+# functional-level equivalence hypothesis is ours.
+#
+# AUTHORED FROM DOCUMENTATION ONLY, BEFORE EXECUTION. `left_name` values are copied verbatim from
+# the frozen published_rows.json; a typo therefore fails loudly at join time rather than silently
+# dropping a row.
+#
+# `left_impl` / `right_impl` name the functional cores that stand in for the two classes. A row is
+# only joinable when both sides have a functional core in this corpus; rows whose counterpart is a
+# dash carry no second function and are excluded from the matrix by construction (A1/01 §6).
+# =============================================================================================
+
+version: 1
+authored: 2026-08-19
+
+rows:
+  - {page: kornia, left_name: GaussianBlur, family: gaussian_blur, left_impl: alb.gaussian_blur, right_impl: kornia.filters.gaussian_blur2d}
+  - {page: torchvision, left_name: GaussianBlur, family: gaussian_blur, left_impl: alb.gaussian_blur, right_impl: tv.gaussian_blur}
+  - {page: kornia, left_name: MedianBlur, family: median_blur, left_impl: alb.median_blur, right_impl: kornia.filters.median_blur}
+  - {page: kornia, left_name: HorizontalFlip, family: horizontal_flip, left_impl: alb.hflip, right_impl: kornia.geometry.hflip}
+  - {page: torchvision, left_name: HorizontalFlip, family: horizontal_flip, left_impl: alb.hflip, right_impl: tv.horizontal_flip}
+  - {page: kornia, left_name: VerticalFlip, family: vertical_flip, left_impl: alb.vflip, right_impl: kornia.geometry.vflip}
+  - {page: torchvision, left_name: VerticalFlip, family: vertical_flip, left_impl: alb.vflip, right_impl: tv.vertical_flip}
+  - {page: kornia, left_name: Equalize, family: equalize_hist, left_impl: alb.equalize, right_impl: kornia.enhance.equalize}
+  - {page: torchvision, left_name: Equalize, family: equalize_hist, left_impl: alb.equalize, right_impl: tv.equalize}
+  - {page: kornia, left_name: CLAHE, family: clahe, left_impl: alb.clahe, right_impl: kornia.enhance.equalize_clahe}
+  - {page: kornia, left_name: Posterize, family: posterize, left_impl: alb.posterize, right_impl: kornia.enhance.posterize}
+  - {page: torchvision, left_name: Posterize, family: posterize, left_impl: alb.posterize, right_impl: tv.posterize}
+  - {page: kornia, left_name: Solarize, family: solarize, left_impl: alb.solarize, right_impl: kornia.enhance.solarize}
+  - {page: torchvision, left_name: Solarize, family: solarize, left_impl: alb.solarize, right_impl: tv.solarize}
+  - {page: kornia, left_name: ToGray, family: grayscale, left_impl: cv2.cvtColor_gray, right_impl: kornia.color.rgb_to_grayscale}
+  - {page: torchvision, left_name: ToGray, family: grayscale, left_impl: cv2.cvtColor_gray, right_impl: tv.rgb_to_grayscale}
+  - {page: kornia, left_name: Sharpen, family: sharpness, left_impl: pil.ImageEnhance.Sharpness, right_impl: kornia.enhance.sharpness}
+  - {page: torchvision, left_name: Sharpen, family: sharpness, left_impl: pil.ImageEnhance.Sharpness, right_impl: tv.adjust_sharpness}

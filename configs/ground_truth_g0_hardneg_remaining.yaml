@@ -1,0 +1,25 @@
+# Only the hard-negative pairs still unscored after the OOM. Labels are copied verbatim from
+# configs/ground_truth_g0_hardneg69.yaml, so verdicts here pool with the recovered ones: same
+# battery, same carried-over thresholds, same labels. This exists because run_benchmark always
+# scores `generated | designed` — shrinking the KEY is the only way to shrink the work.
+version: "1"
+exact: []
+perceptual: []
+subsumption: []
+semantic_preserving: []
+complementary: []
+distinct_hard_negatives:
+  - [resize_bicubic_v1, resize_bilinear_v1]
+  - [resize_bicubic_v1, resize_nearest_v1]
+  - [resize_bilinear_v1, resize_nearest_v1]
+  - [resize_bilinear_v1, scale_xy_v1]
+  - [rotate_180_v1, rotate_270_v1]
+  - [rotate_180_v1, rotate_90_v1]
+  - [rotate_270_v1, rotate_90_v1]
+  - [rotate_45_v1, rotate_90_v1]
+  - [rotate_90_v1, transpose_v1]
+  - [scale_xy_v1, translate_v1]
+  - [sharpen_laplacian_kernel_v1, sharpen_unsharp_v1]
+  - [shear_horizontal_v1, shear_vertical_v1]
+  - [threshold_adaptive_mean_v1, threshold_binary_v1]
+  - [threshold_binary_v1, threshold_otsu_v1]

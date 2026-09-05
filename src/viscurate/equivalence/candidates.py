@@ -17,6 +17,7 @@ behaviour still collide and get verified — the redundancy text-based pruning m
 
 from __future__ import annotations
 
+import time
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 
@@ -25,6 +26,7 @@ import numpy.typing as npt
 
 from viscurate.equivalence.backends import SemanticBackend, cosine_distance
 from viscurate.equivalence.compare import OutputProvider
+from viscurate.instrument.telemetry import active_recorder
 from viscurate.skills.canonicalize import Canonical
 from viscurate.skills.model import ComparatorView
 
@@ -39,10 +41,21 @@ NDArrayF = npt.NDArray[np.float32]
 
 # Planted boundary cases (CLAUDE.md §2.3, §3.5.4) that must never be pruned — keyed by id, not
 # description, so this stays inside the output-grounded path.
+#
+# ⚠ THE ANSWER KEY IS AUTHORITATIVE, NOT THIS LIST. ``configs/ground_truth_g0.yaml``'s
+# ``distinct_hard_negatives`` is what labels the slice, and this constant is only the "never prune
+# me" hint for callers of :func:`candidate_pairs` that do not separately union the designed pairs.
+# The two had drifted — the key listed six pairs and this listed five, omitting
+# (resize_nearest, resize_bicubic) — which was harmless ONLY because
+# ``benchmark.runner`` unions ``ground_truth.designed_pairs()`` into the scored set and both
+# skills share the ``geometric`` family. A hard negative added ACROSS families, and absent here,
+# would be silently pruned by a caller that relies on this list alone. Prefer passing the key's
+# own list via ``hard_negatives=`` over extending this constant.
 ENGINEERED_HARD_NEGATIVES: tuple[tuple[str, str], ...] = (
     ("blur_gaussian_v1", "blur_box_v1"),
     ("resize_nearest_v1", "resize_bilinear_v1"),
     ("resize_bilinear_v1", "resize_bicubic_v1"),
+    ("resize_nearest_v1", "resize_bicubic_v1"),
     ("pad_reflect_v1", "pad_replicate_v1"),
     ("posterize_v1", "quantize_uniform_v1"),
 )
@@ -112,7 +125,13 @@ def candidate_pairs(
     include_same_family: bool = True,
     hard_negatives: Sequence[tuple[str, str]] = ENGINEERED_HARD_NEGATIVES,
 ) -> set[tuple[str, str]]:
-    """Propose candidate pairs by fingerprint NN ∪ same-family ∪ engineered hard negatives."""
+    """Propose candidate pairs by fingerprint NN ∪ same-family ∪ engineered hard negatives.
+
+    Emits one ``candidate_gen`` telemetry event carrying the reduction against the full
+    ``n(n-1)/2`` pair set — A4's screening-reduction number, measured rather than asserted.
+    """
+    rec = active_recorder()
+    t0 = time.perf_counter()
     id_set = {v.id for v in views}
     pairs: set[tuple[str, str]] = set()
 
@@ -139,4 +158,12 @@ def candidate_pairs(
         if a_id in id_set and b_id in id_set:
             pairs.add(normalize_pair(a_id, b_id))
 
+    n = len(views)
+    rec.candidate_gen(
+        n_skills=n,
+        radius=max_distance,
+        n_candidates=len(pairs),
+        n_all_pairs=n * (n - 1) // 2,
+        wall_ms=(time.perf_counter() - t0) * 1000.0,
+    )
     return pairs

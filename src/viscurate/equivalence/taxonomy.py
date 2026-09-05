@@ -39,10 +39,70 @@ from viscurate.equivalence.complementary import is_complementary
 from viscurate.equivalence.param_alignment import ParamAlignment
 from viscurate.equivalence.relations import Direction, Relation, RelationResult
 from viscurate.equivalence.subsumption import subsumption_search
+from viscurate.instrument.telemetry import active_recorder, gpu_timer
 from viscurate.skills.canonicalize import content_hash, max_abs_pixel_diff
 from viscurate.skills.model import ComparatorView, Params
 
 __all__ = ["classify"]
+
+
+# ``l_inf`` is the only pixel-domain distance; anything else in ``RelationResult.distances`` means
+# a learned backend (LPIPS/SSIM/DINO/CLIP) was consulted, so its absence is what "short-circuited"
+# means here — the pair was settled without reaching the learned stages.
+_PIXEL_ONLY_KEYS = frozenset({"l_inf"})
+
+_DECIDING_STAGE = {
+    Relation.EXACT: "exact",
+    Relation.PERCEPTUAL: "perceptual",
+    Relation.SUBSUMPTION: "subsumption",
+    Relation.SEMANTIC_PRESERVING: "semantic",
+    Relation.COMPLEMENTARY: "complementary",
+    Relation.DISTINCT: "residual",
+    Relation.UNCERTAIN: "abstention_band",
+}
+
+
+def classify(
+    view_a: ComparatorView,
+    view_b: ComparatorView,
+    provider: OutputProvider,
+    *,
+    thresholds: ThresholdConfig,
+    perceptual: PerceptualBackend | None = None,
+    semantic: SemanticBackend | None = None,
+    clip: SemanticBackend | None = None,
+    alignment: ParamAlignment | None = None,
+    seed: int | None = None,
+) -> RelationResult:
+    """Classify the pair ``(A, B)`` into one relation (or UNCERTAIN), from outputs only.
+
+    Thin instrumented wrapper over :func:`_classify_impl`: emits one ``pair_verify`` telemetry
+    event per pair recording the deciding stage, so A4 can report how often the hierarchical
+    stop-at-first classifier reaches the learned backends at all. Because classification is
+    stop-at-first, the returned relation *is* the deciding stage.
+    """
+    rec = active_recorder()
+    with gpu_timer() as t:
+        result = _classify_impl(
+            view_a,
+            view_b,
+            provider,
+            thresholds=thresholds,
+            perceptual=perceptual,
+            semantic=semantic,
+            clip=clip,
+            alignment=alignment,
+            seed=seed,
+        )
+    rec.pair_verify(
+        pair_id=f"{view_a.id}|{view_b.id}",
+        deciding_stage=_DECIDING_STAGE.get(result.relation, "unknown"),
+        wall_ms=t.get("wall_ms", 0.0),
+        gpu_ms=t.get("gpu_ms", 0.0),
+        verdict=str(result.relation),
+        short_circuited=set(result.distances) <= _PIXEL_ONLY_KEYS,
+    )
+    return result
 
 
 def _sweep(
@@ -101,19 +161,33 @@ def _sweep_perceptual_worst(
     perceptual: PerceptualBackend,
     seed: int | None,
 ) -> tuple[Aggregate, Aggregate]:
-    """Worst LPIPS and worst ``1−SSIM`` over the sweep × probes."""
+    """Worst LPIPS and worst ``1−SSIM`` over the sweep × probes.
+
+    Returns ``inf`` for both when the sweep yields NO common probe — mirroring
+    :func:`_sweep_pixel_worst`'s ``saw_common`` guard. Without it the running maxima keep their
+    ``-1.0`` seed, which is below every perceptual threshold, and a pair that produced no
+    comparable output at all is certified PERCEPTUAL — i.e. licensed for merge on zero evidence.
+    A skill that raises on every probe (corruption defect type 7, "dead skill", or any real
+    library function that cannot run on this battery) hits exactly that path. ``inf`` makes it
+    fall through to DISTINCT instead, which is what the no-backend path already did.
+    """
     lp = Aggregate(value=-1.0, probe_id="")
     ss = Aggregate(value=-1.0, probe_id="")
+    saw_common = False
     for pa, pb in sweep:
         ao = provider.outputs(a_id, pa, seed=seed)
         bo = provider.outputs(b_id, pb, seed=seed)
         for p in ao.common(bo):
+            saw_common = True
             dl = perceptual.distance(ao.canon[p].rgb, bo.canon[p].rgb)
             if dl > lp.value:
                 lp = Aggregate(value=dl, probe_id=p)
             ds = ssim_distance(ao.canon[p].rgb, bo.canon[p].rgb)
             if ds > ss.value:
                 ss = Aggregate(value=ds, probe_id=p)
+    if not saw_common:
+        inf = Aggregate(value=float("inf"), probe_id="")
+        return inf, inf
     return lp, ss
 
 
@@ -146,7 +220,7 @@ def _sweep_semantic(
     return out
 
 
-def classify(
+def _classify_impl(
     view_a: ComparatorView,
     view_b: ComparatorView,
     provider: OutputProvider,
@@ -158,7 +232,7 @@ def classify(
     alignment: ParamAlignment | None = None,
     seed: int | None = None,
 ) -> RelationResult:
-    """Classify the pair ``(A, B)`` into one relation (or UNCERTAIN), from outputs only."""
+    """Classify the pair ``(A, B)``; see :func:`classify` for the instrumented entry point."""
     a_id, b_id = view_a.id, view_b.id
     eps = thresholds.exact_epsilon
     tau_p = thresholds.perceptual_lpips

@@ -13,6 +13,7 @@ import json
 import math
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from collections.abc import Sequence
@@ -23,6 +24,7 @@ import numpy as np
 import numpy.typing as npt
 
 from viscurate.equivalence.relations import Relation
+from viscurate.instrument.telemetry import active_recorder
 from viscurate.skills.model import SkillSpec
 
 __all__ = [
@@ -305,6 +307,7 @@ class OpenAIClient:
             data=json.dumps(body).encode("utf-8"),
             headers=headers,
         )
+        t0 = time.perf_counter()
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
@@ -318,6 +321,17 @@ class OpenAIClient:
             raise LlmUnavailableError(
                 f"OpenAI-compatible request failed ({self.base_url}): {exc}"
             ) from exc
+        # Token counts come from the server's own ``usage`` block, never from an estimate: A4's
+        # cost table has to be auditable against the provider's billing, so a missing field is
+        # recorded as 0 rather than approximated from character counts.
+        usage = data.get("usage") or {}
+        active_recorder().llm_call(
+            model=self.model,
+            tokens_in=int(usage.get("prompt_tokens", 0) or 0),
+            tokens_out=int(usage.get("completion_tokens", 0) or 0),
+            effort="thinking" if self.enable_thinking else "default",
+            wall_ms=(time.perf_counter() - t0) * 1000.0,
+        )
         try:
             content = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:

@@ -480,7 +480,7 @@ def _cmd_curate(args: argparse.Namespace) -> int:
             )
         )
     elif args.ollama_model:
-        agent: object = LlmCurationAgent(OllamaClient(args.ollama_model, host=args.ollama_host))
+        agent = LlmCurationAgent(OllamaClient(args.ollama_model, host=args.ollama_host))
     elif args.anthropic:
         agent = LlmCurationAgent(AnthropicClient(model=args.model))
     elif args.actions:
@@ -522,6 +522,7 @@ def _cmd_curate(args: argparse.Namespace) -> int:
             hardened_executor=hardened_executor,
             budget=cfg.curation.budget,
             usage_fold_threshold=cfg.curation.usage_fold_threshold,
+            instance_id=(Path(args.instance).name if args.instance else "L0"),
         )
         episode = run_episode(env, agent, max_steps=args.max_steps)
     finally:
@@ -1048,7 +1049,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--ci-method",
         choices=("normal", "bootstrap"),
         default="normal",
-        help="95% CI method for aggregate seed rows",
+        help="95%% CI method for aggregate seed rows",
     )
     p_phase8.add_argument(
         "--bootstrap-samples",

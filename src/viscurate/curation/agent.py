@@ -19,6 +19,7 @@ HTTP) and :class:`AnthropicClient` (Claude API, optional ``anthropic`` dependenc
 from __future__ import annotations
 
 import json
+import time
 import urllib.error
 import urllib.request
 from collections.abc import Sequence
@@ -27,6 +28,7 @@ from typing import Any, Protocol, runtime_checkable
 from viscurate.baselines.judges import LlmClient, LlmUnavailableError, UnavailableLlmClient
 from viscurate.curation.actions import Action, ActionKind
 from viscurate.curation.state import CurationState
+from viscurate.instrument.telemetry import active_recorder
 
 __all__ = [
     "AnthropicClient",
@@ -170,11 +172,20 @@ class OllamaClient:
         req = urllib.request.Request(
             f"{self.host}/api/generate", data=payload, headers={"Content-Type": "application/json"}
         )
+        t0 = time.perf_counter()
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
         except (urllib.error.URLError, OSError) as exc:
             raise LlmUnavailableError(f"Ollama request failed ({self.host}): {exc}") from exc
+        # Ollama reports real counts as prompt_eval_count/eval_count on the non-streamed reply.
+        active_recorder().llm_call(
+            model=self.model,
+            tokens_in=int(body.get("prompt_eval_count", 0) or 0),
+            tokens_out=int(body.get("eval_count", 0) or 0),
+            effort="default",
+            wall_ms=(time.perf_counter() - t0) * 1000.0,
+        )
         return str(body.get("response", ""))
 
 
@@ -224,10 +235,19 @@ class AnthropicClient:
         self._client: Any = anthropic.Anthropic()  # ANTHROPIC_API_KEY from env
 
     def complete(self, prompt: str) -> str:
+        t0 = time.perf_counter()
         response = self._client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
             thinking=self._thinking,
             messages=[{"role": "user", "content": prompt}],
+        )
+        usage = getattr(response, "usage", None)
+        active_recorder().llm_call(
+            model=self.model,
+            tokens_in=int(getattr(usage, "input_tokens", 0) or 0),
+            tokens_out=int(getattr(usage, "output_tokens", 0) or 0),
+            effort=self._thinking.get("type", "unknown"),
+            wall_ms=(time.perf_counter() - t0) * 1000.0,
         )
         return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")

@@ -1,0 +1,8 @@
+# Fork-pair study: there is NO published table claiming pilgram == pilgram2.
+# The equivalence hypothesis comes from the FORK RELATIONSHIP itself (pilgram2 is a fork of
+# pilgram and keeps its filter names), not from any vendor's documentation. The claim-vs-execution
+# matrix is therefore empty by construction, and that is the correct representation: this corpus
+# tests unmanaged divergence, not a published claim.
+version: 1
+authored: 2026-08-22
+rows: []

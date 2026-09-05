@@ -1,0 +1,624 @@
+# =============================================================================================
+# A1 Corpus A — cross-library parameter alignment maps.
+#
+# AUTHORED FROM DOCUMENTATION ONLY, BEFORE ANY EXECUTION (A1/01 §4.1 rule 2 and the §2.2
+# contamination warning). No output of any implementation below was inspected while writing this
+# file. The file is hashed and recorded in the run manifest; the hash is what makes that claim
+# checkable after the fact.
+#
+# WHAT IS BEING COMPARED. Each family names a deterministic FUNCTIONAL CORE per library, not the
+# random transform wrapper the published tables map (A1/01 §3). The published tables therefore
+# supply CANDIDATE PAIRS; the equivalence hypothesis tested at the functional level is ours.
+#
+# ALIGNMENT STATUS is a first-class outcome, never merged with behavioral non-equivalence
+# (A1/01 §4.1 rule 5):
+#   full     the parameter schemas map bijectively over the shared grid
+#   partial  a defensible but lossy mapping (documented in `notes`)
+#   none     no defensible mapping exists -> recorded as an ALIGNMENT FAILURE, never as a
+#            behavioral divergence
+#
+# `variants` lists ALTERNATIVE DEFENSIBLE ALIGNMENTS for the same implementation (rule 4). Where
+# present, every variant is evaluated and the spread is reported as alignment sensitivity: a
+# divergence visible under only one variant is an alignment artifact, not a behavioral finding.
+#
+# Images arriving at `call` are uint8 HWC RGB (the battery contract). Each implementation declares
+# the adapter it needs; the adapter converts in and back out, and every conversion is logged per
+# pair so a conversion bug cannot masquerade as a behavioral difference (A1/01 §5 step 3).
+#   u8_hwc_rgb      no conversion (OpenCV / skimage uint8 / albumentations native)
+#   f32_hwc_01      float32 HWC in [0,1]
+#   pil_rgb         PIL.Image RGB
+#   torch_bchw_01   torch float32 BCHW in [0,1]  (kornia, torchvision.transforms.v2.functional)
+#   torch_bchw_u8   torch uint8 BCHW in [0,255]  (torchvision ops that require uint8)
+# =============================================================================================
+
+version: 1
+authored: 2026-08-19
+author: claude-opus-5 (agent), documentation-only pass
+libraries:
+  cv2: OpenCV — cv2.*
+  pil: Pillow — PIL.ImageOps / ImageFilter / ImageEnhance
+  skimage: scikit-image — skimage.filters / transform / exposure / morphology
+  kornia: Kornia — kornia.filters / enhance / geometry / morphology
+  tv: torchvision — torchvision.transforms.v2.functional
+  alb: Albumentations — albumentations.augmentations.*.functional
+
+families:
+
+  # ---------------------------------------------------------------------------------------
+  - family: gaussian_blur
+    canonical_params:
+      sigma: {type: float, grid: [0.5, 1.0, 2.0, 4.0]}
+      ksize: {type: int, grid: [3, 5, 9, 17], constraint: odd}
+    implementations:
+      - id: cv2.GaussianBlur
+        adapter: u8_hwc_rgb
+        call: "cv2.GaussianBlur(img, (ksize, ksize), sigmaX=sigma, sigmaY=sigma)"
+        alignment: full
+        notes: "borderType defaults to BORDER_REFLECT_101."
+      - id: kornia.filters.gaussian_blur2d
+        adapter: torch_bchw_01
+        call: "kornia.filters.gaussian_blur2d(img, (ksize, ksize), (sigma, sigma))"
+        alignment: full
+        notes: "border_type defaults to 'reflect' (= REFLECT_101). Matches cv2's default."
+      - id: skimage.filters.gaussian
+        adapter: f32_hwc_01
+        call: "skimage.filters.gaussian(img, sigma=sigma, channel_axis=2, mode='nearest', truncate=(ksize-1)/2/sigma)"
+        alignment: partial
+        notes: >
+          skimage sizes its kernel from `truncate*sigma`, not from an explicit ksize. truncate is
+          solved so the kernel radius equals (ksize-1)/2. Default boundary is 'nearest', which is
+          NOT cv2's reflect-101 — a documented, deliberate difference in border handling.
+        variants:
+          - id: skimage.filters.gaussian@reflect
+            call: "skimage.filters.gaussian(img, sigma=sigma, channel_axis=2, mode='mirror', truncate=(ksize-1)/2/sigma)"
+            notes: "Alternative defensible alignment: 'mirror' is skimage's reflect-101 equivalent."
+      - id: tv.gaussian_blur
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.gaussian_blur(img, kernel_size=[ksize, ksize], sigma=[sigma, sigma])"
+        alignment: full
+        notes: "Documented as reflect padding."
+      - id: pil.ImageFilter.GaussianBlur
+        adapter: pil_rgb
+        call: "img.filter(PIL.ImageFilter.GaussianBlur(radius=sigma))"
+        alignment: partial
+        notes: >
+          PIL's `radius` is documented as the standard deviation, so radius<-sigma is the only
+          defensible mapping — but PIL exposes NO kernel-size control, so the ksize axis is
+          unmatched. Recorded as a PARTIAL alignment on the ksize axis, not as a divergence.
+      - id: alb.gaussian_blur
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.separable_convolve(img, kernel=cv2.getGaussianKernel(ksize, sigma))"
+        alignment: full
+        notes: >
+          Albumentations 2.0.8 exposes no `gaussian_blur` functional: its GaussianBlur transform
+          calls `separable_convolve` with a kernel it samples via cv2.getGaussianKernel. That
+          composition IS the functional core, so it is what gets audited.
+
+  # ---------------------------------------------------------------------------------------
+  - family: box_blur
+    canonical_params:
+      ksize: {type: int, grid: [3, 5, 9, 17], constraint: odd}
+    implementations:
+      - id: cv2.blur
+        adapter: u8_hwc_rgb
+        call: "cv2.blur(img, (ksize, ksize))"
+        alignment: full
+      - id: kornia.filters.box_blur
+        adapter: torch_bchw_01
+        call: "kornia.filters.box_blur(img, (ksize, ksize))"
+        alignment: full
+        notes: "border_type='reflect' default, same as cv2's BORDER_REFLECT_101."
+      - id: pil.ImageFilter.BoxBlur
+        adapter: pil_rgb
+        call: "img.filter(PIL.ImageFilter.BoxBlur(radius=(ksize-1)//2))"
+        alignment: full
+        notes: "PIL BoxBlur radius r spans a (2r+1) window, so r=(ksize-1)/2 is exact."
+      - id: skimage.uniform_filter
+        adapter: f32_hwc_01
+        call: "scipy.ndimage.uniform_filter(img, size=(ksize, ksize, 1), mode='reflect')"
+        alignment: full
+        notes: "scipy 'reflect' is reflect-101-like at the edges; skimage has no direct box filter."
+
+  # ---------------------------------------------------------------------------------------
+  - family: median_blur
+    canonical_params:
+      ksize: {type: int, grid: [3, 5, 9], constraint: odd}
+    implementations:
+      - id: cv2.medianBlur
+        adapter: u8_hwc_rgb
+        call: "cv2.medianBlur(img, ksize)"
+        alignment: full
+      - id: kornia.filters.median_blur
+        adapter: torch_bchw_01
+        call: "kornia.filters.median_blur(img, (ksize, ksize))"
+        alignment: full
+      - id: skimage.filters.median
+        adapter: u8_hwc_rgb
+        call: "skimage.filters.median(img, footprint=np.ones((ksize, ksize, 1), dtype=bool))"
+        alignment: full
+      - id: pil.ImageFilter.MedianFilter
+        adapter: pil_rgb
+        call: "img.filter(PIL.ImageFilter.MedianFilter(size=ksize))"
+        alignment: full
+      - id: alb.median_blur
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.blur.functional.median_blur(img, ksize)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: horizontal_flip
+    canonical_params: {}
+    implementations:
+      - id: cv2.flip_h
+        adapter: u8_hwc_rgb
+        call: "cv2.flip(img, 1)"
+        alignment: full
+      - id: kornia.geometry.hflip
+        adapter: torch_bchw_01
+        call: "kornia.geometry.transform.hflip(img)"
+        alignment: full
+      - id: tv.horizontal_flip
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.horizontal_flip(img)"
+        alignment: full
+      - id: pil.ImageOps.mirror
+        adapter: pil_rgb
+        call: "PIL.ImageOps.mirror(img)"
+        alignment: full
+      - id: alb.hflip
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.geometric.functional.hflip(img)"
+        alignment: full
+      - id: numpy.fliplr
+        adapter: u8_hwc_rgb
+        call: "np.ascontiguousarray(img[:, ::-1])"
+        alignment: full
+        notes: "Reference implementation: an exact horizontal flip by construction."
+
+  # ---------------------------------------------------------------------------------------
+  - family: vertical_flip
+    canonical_params: {}
+    implementations:
+      - id: cv2.flip_v
+        adapter: u8_hwc_rgb
+        call: "cv2.flip(img, 0)"
+        alignment: full
+      - id: kornia.geometry.vflip
+        adapter: torch_bchw_01
+        call: "kornia.geometry.transform.vflip(img)"
+        alignment: full
+      - id: tv.vertical_flip
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.vertical_flip(img)"
+        alignment: full
+      - id: pil.ImageOps.flip
+        adapter: pil_rgb
+        call: "PIL.ImageOps.flip(img)"
+        alignment: full
+      - id: alb.vflip
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.geometric.functional.vflip(img)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: grayscale
+    canonical_params: {}
+    implementations:
+      - id: cv2.cvtColor_gray
+        adapter: u8_hwc_rgb
+        call: "cv2.cvtColor(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB)"
+        alignment: full
+        notes: "cv2 uses the ITU-R BT.601 luma weights (0.299/0.587/0.114)."
+      - id: pil.ImageOps.grayscale
+        adapter: pil_rgb
+        call: "PIL.ImageOps.grayscale(img).convert('RGB')"
+        alignment: full
+        notes: "PIL 'L' conversion also uses BT.601 weights, so a match is expected a priori."
+      - id: tv.rgb_to_grayscale
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.rgb_to_grayscale(img, num_output_channels=3)"
+        alignment: full
+        notes: "Documented BT.601 weights."
+      - id: kornia.color.rgb_to_grayscale
+        adapter: torch_bchw_01
+        call: "kornia.color.rgb_to_grayscale(img).repeat(1, 3, 1, 1)"
+        alignment: full
+        notes: "Kornia documents BT.601 weights (0.299/0.587/0.114) as its default."
+      - id: skimage.color.rgb2gray
+        adapter: f32_hwc_01
+        call: "np.repeat(skimage.color.rgb2gray(img)[:, :, None], 3, axis=2)"
+        alignment: partial
+        notes: >
+          skimage's rgb2gray uses the ITU-R BT.709 luma coefficients (0.2125/0.7154/0.0721), NOT
+          BT.601. The alignment is defensible (both are 'RGB->luma') but the coefficient sets
+          differ by documentation, so a divergence here is a real behavioral difference under a
+          full alignment, and this is the paper's own blur_gaussian-vs-blur_box case in the wild.
+
+  # ---------------------------------------------------------------------------------------
+  - family: invert
+    canonical_params: {}
+    implementations:
+      - id: cv2.bitwise_not
+        adapter: u8_hwc_rgb
+        call: "cv2.bitwise_not(img)"
+        alignment: full
+      - id: pil.ImageOps.invert
+        adapter: pil_rgb
+        call: "PIL.ImageOps.invert(img)"
+        alignment: full
+      - id: tv.invert
+        adapter: torch_bchw_u8
+        call: "torchvision.transforms.v2.functional.invert(img)"
+        alignment: full
+      - id: kornia.enhance.invert
+        adapter: torch_bchw_01
+        call: "kornia.enhance.invert(img)"
+        alignment: full
+      - id: skimage.util.invert
+        adapter: u8_hwc_rgb
+        call: "skimage.util.invert(img)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: equalize_hist
+    canonical_params: {}
+    implementations:
+      - id: cv2.equalizeHist
+        adapter: u8_hwc_rgb
+        call: "np.stack([cv2.equalizeHist(img[:, :, c]) for c in range(img.shape[2])], axis=2)"
+        alignment: full
+        notes: "Per-channel equalization; cv2.equalizeHist is single-channel only."
+      - id: pil.ImageOps.equalize
+        adapter: pil_rgb
+        call: "PIL.ImageOps.equalize(img)"
+        alignment: full
+        notes: "PIL equalizes each band independently."
+      - id: tv.equalize
+        adapter: torch_bchw_u8
+        call: "torchvision.transforms.v2.functional.equalize(img)"
+        alignment: full
+      - id: kornia.enhance.equalize
+        adapter: torch_bchw_01
+        call: "kornia.enhance.equalize(img)"
+        alignment: full
+      - id: skimage.exposure.equalize_hist
+        adapter: f32_hwc_01
+        call: "np.stack([skimage.exposure.equalize_hist(img[:, :, c]) for c in range(img.shape[2])], axis=2)"
+        alignment: partial
+        notes: >
+          skimage's equalize_hist works on a continuous CDF over `nbins` (default 256) in float,
+          rather than the integer-histogram LUT the uint8 implementations use. Documented as the
+          same operation; the numeric construction differs.
+      - id: alb.equalize
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.equalize(img)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: clahe
+    canonical_params:
+      clip_limit: {type: float, grid: [2.0, 4.0]}
+      tile: {type: int, grid: [8]}
+    implementations:
+      - id: cv2.createCLAHE
+        adapter: u8_hwc_rgb
+        call: "cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(tile, tile)).apply(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY))"
+        alignment: full
+        notes: "Grayscale CLAHE. cv2's clipLimit counts histogram bins per tile."
+      - id: kornia.enhance.equalize_clahe
+        adapter: torch_bchw_01
+        call: "kornia.enhance.equalize_clahe(kornia.color.rgb_to_grayscale(img), clip_limit=clip_limit, grid_size=(tile, tile))"
+        alignment: partial
+        notes: >
+          kornia/kornia#3408 reports these are not equivalent: differing dtype requirements
+          (uint8/uint16 vs float32) and differing clipLimit semantics. clip_limit<-clipLimit is the
+          only mapping the two docs support, so it is used and its PARTIAL status recorded. This is
+          A1/01 §7's motivating example, tested rather than cited.
+      - id: skimage.exposure.equalize_adapthist
+        adapter: f32_hwc_01
+        call: "skimage.exposure.equalize_adapthist(skimage.color.rgb2gray(img), kernel_size=None, clip_limit=clip_limit/100.0)"
+        alignment: partial
+        notes: >
+          skimage's clip_limit is a NORMALIZED fraction in [0,1], not cv2's bin count. /100 is the
+          conventional documented correspondence but is not exact; kept as PARTIAL, and the
+          variant below tests the sensitivity of that choice.
+        variants:
+          - id: skimage.exposure.equalize_adapthist@clip01
+            call: "skimage.exposure.equalize_adapthist(skimage.color.rgb2gray(img), kernel_size=None, clip_limit=0.01)"
+            notes: "Alternative: skimage's own documented default clip_limit=0.01, ignoring the map."
+      - id: alb.clahe
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.clahe(img, clip_limit=clip_limit, tile_grid_size=(tile, tile))"
+        alignment: full
+        notes: "Documented as an OpenCV CLAHE wrapper applied on the L channel of LAB."
+
+  # ---------------------------------------------------------------------------------------
+  - family: posterize
+    canonical_params:
+      bits: {type: int, grid: [2, 4, 6]}
+    implementations:
+      - id: pil.ImageOps.posterize
+        adapter: pil_rgb
+        call: "PIL.ImageOps.posterize(img, bits)"
+        alignment: full
+      - id: tv.posterize
+        adapter: torch_bchw_u8
+        call: "torchvision.transforms.v2.functional.posterize(img, bits=bits)"
+        alignment: full
+      - id: kornia.enhance.posterize
+        adapter: torch_bchw_01
+        call: "kornia.enhance.posterize(img, bits=bits)"
+        alignment: full
+      - id: alb.posterize
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.posterize(img, bits)"
+        alignment: full
+      - id: numpy.posterize_mask
+        adapter: u8_hwc_rgb
+        call: "(img & (0xFF - (1 << (8 - bits)) + 1)).astype(np.uint8)"
+        alignment: full
+        notes: "Reference bit-masking implementation, the textbook definition of posterize."
+
+  # ---------------------------------------------------------------------------------------
+  - family: solarize
+    canonical_params:
+      threshold_u8: {type: int, grid: [64, 128, 192]}
+    implementations:
+      - id: pil.ImageOps.solarize
+        adapter: pil_rgb
+        call: "PIL.ImageOps.solarize(img, threshold=threshold_u8)"
+        alignment: full
+      - id: tv.solarize
+        adapter: torch_bchw_u8
+        call: "torchvision.transforms.v2.functional.solarize(img, threshold=float(threshold_u8))"
+        alignment: full
+      - id: kornia.enhance.solarize
+        adapter: torch_bchw_01
+        call: "kornia.enhance.solarize(img, thresholds=threshold_u8 / 255.0)"
+        alignment: partial
+        notes: >
+          kornia's `thresholds` is in [0,1] because it operates on float tensors; /255 is the
+          documented correspondence. Whether the comparison is `>` or `>=` at the threshold is not
+          specified identically across the three docs, so a 1-level boundary difference is
+          possible and is reported as such rather than as a wholesale divergence.
+      - id: alb.solarize
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.solarize(img, threshold=threshold_u8)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: gamma
+    canonical_params:
+      gamma: {type: float, grid: [0.5, 1.5, 2.2]}
+    implementations:
+      - id: skimage.exposure.adjust_gamma
+        adapter: f32_hwc_01
+        call: "skimage.exposure.adjust_gamma(img, gamma=gamma)"
+        alignment: full
+      - id: tv.adjust_gamma
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.adjust_gamma(img, gamma=gamma)"
+        alignment: full
+      - id: kornia.enhance.adjust_gamma
+        adapter: torch_bchw_01
+        call: "kornia.enhance.adjust_gamma(img, gamma=gamma)"
+        alignment: full
+      - id: cv2.LUT_gamma
+        adapter: u8_hwc_rgb
+        call: "cv2.LUT(img, np.clip(((np.arange(256) / 255.0) ** gamma) * 255.0, 0, 255).astype(np.uint8))"
+        alignment: full
+        notes: "The standard uint8 LUT formulation of the same power law."
+      - id: alb.gamma_transform
+        adapter: u8_hwc_rgb
+        call: "albumentations.augmentations.pixel.functional.gamma_transform(img, gamma=gamma)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: brightness_scale
+    canonical_params:
+      factor: {type: float, grid: [0.5, 1.25, 1.75]}
+    implementations:
+      - id: pil.ImageEnhance.Brightness
+        adapter: pil_rgb
+        call: "PIL.ImageEnhance.Brightness(img).enhance(factor)"
+        alignment: full
+        notes: "PIL blends towards a black image: out = img * factor."
+      - id: tv.adjust_brightness
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.adjust_brightness(img, brightness_factor=factor)"
+        alignment: full
+        notes: "Documented as a multiplicative blend with black, matching PIL."
+      - id: kornia.enhance.adjust_brightness
+        adapter: torch_bchw_01
+        call: "kornia.enhance.adjust_brightness(img, factor - 1.0)"
+        alignment: partial
+        notes: >
+          Kornia's adjust_brightness is ADDITIVE (out = img + factor) while PIL/torchvision are
+          MULTIPLICATIVE. There is no bijection between the two parameterizations; (factor-1) is
+          the only mapping that agrees at factor=1, and it is exact nowhere else. This is a
+          genuine PARAMETERIZATION mismatch, recorded as PARTIAL alignment.
+        variants:
+          - id: kornia.enhance.adjust_brightness@multiplicative
+            call: "torch.clamp(img * factor, 0.0, 1.0)"
+            notes: >
+              Alternative defensible alignment: keep kornia's semantics but supply the
+              multiplicative form directly, isolating whether the divergence is the
+              parameterization or the clamping.
+      - id: cv2.convertScaleAbs
+        adapter: u8_hwc_rgb
+        call: "cv2.convertScaleAbs(img, alpha=factor, beta=0)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: contrast_scale
+    canonical_params:
+      factor: {type: float, grid: [0.5, 1.25, 1.75]}
+    implementations:
+      - id: pil.ImageEnhance.Contrast
+        adapter: pil_rgb
+        call: "PIL.ImageEnhance.Contrast(img).enhance(factor)"
+        alignment: full
+        notes: "PIL blends towards the image's MEAN GRAY level."
+      - id: tv.adjust_contrast
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.adjust_contrast(img, contrast_factor=factor)"
+        alignment: full
+        notes: "Documented as blending towards the mean of the grayscale image, matching PIL."
+      - id: kornia.enhance.adjust_contrast
+        adapter: torch_bchw_01
+        call: "kornia.enhance.adjust_contrast(img, factor)"
+        alignment: partial
+        notes: >
+          Kornia's adjust_contrast multiplies about ZERO (out = img * factor), not about the mean.
+          Same name, same documented purpose, different fixed point — so the two agree only where
+          the image mean is 0. Recorded as PARTIAL.
+
+  # ---------------------------------------------------------------------------------------
+  - family: sobel_edges
+    canonical_params:
+      ksize: {type: int, grid: [3, 5], constraint: odd}
+    implementations:
+      - id: cv2.Sobel_mag
+        adapter: u8_hwc_rgb
+        call: "_sobel_mag_cv2(img, ksize)"
+        alignment: full
+        notes: "sqrt(dx^2+dy^2) on the grayscale image, scaled back to uint8."
+      - id: kornia.filters.sobel
+        adapter: torch_bchw_01
+        call: "kornia.filters.sobel(kornia.color.rgb_to_grayscale(img)).repeat(1, 3, 1, 1)"
+        alignment: partial
+        notes: >
+          kornia.filters.sobel returns the gradient MAGNITUDE with a fixed 3x3 kernel and
+          normalized=True by default, so the ksize axis is unmatched beyond 3 and the scaling
+          differs from cv2's. PARTIAL on the ksize axis.
+      - id: skimage.filters.sobel
+        adapter: f32_hwc_01
+        call: "np.repeat(skimage.filters.sobel(skimage.color.rgb2gray(img))[:, :, None], 3, axis=2)"
+        alignment: partial
+        notes: >
+          skimage.filters.sobel is fixed at a 3x3 kernel and divides by a normalizing constant so
+          the result stays in [0,1]. ksize is unmatched beyond 3.
+
+  # ---------------------------------------------------------------------------------------
+  - family: laplacian_edges
+    canonical_params:
+      ksize: {type: int, grid: [3], constraint: odd}
+    implementations:
+      - id: cv2.Laplacian
+        adapter: u8_hwc_rgb
+        call: "cv2.convertScaleAbs(cv2.Laplacian(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), cv2.CV_32F, ksize=ksize))"
+        alignment: full
+      - id: kornia.filters.laplacian
+        adapter: torch_bchw_01
+        call: "kornia.filters.laplacian(kornia.color.rgb_to_grayscale(img), kernel_size=ksize).abs().repeat(1, 3, 1, 1)"
+        alignment: full
+      - id: skimage.filters.laplace
+        adapter: f32_hwc_01
+        call: "np.repeat(np.abs(skimage.filters.laplace(skimage.color.rgb2gray(img), ksize=ksize))[:, :, None], 3, axis=2)"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: erode
+    canonical_params:
+      ksize: {type: int, grid: [3, 5], constraint: odd}
+    implementations:
+      - id: cv2.erode
+        adapter: u8_hwc_rgb
+        call: "cv2.erode(img, np.ones((ksize, ksize), np.uint8))"
+        alignment: full
+        notes: "Rectangular structuring element; borderType default BORDER_CONSTANT with max value."
+      - id: skimage.morphology.erosion
+        adapter: u8_hwc_rgb
+        call: "np.stack([skimage.morphology.erosion(img[:, :, c], footprint=np.ones((ksize, ksize), bool)) for c in range(img.shape[2])], axis=2)"
+        alignment: full
+      - id: kornia.morphology.erosion
+        adapter: torch_bchw_01
+        call: "kornia.morphology.erosion(img, torch.ones(ksize, ksize, device=img.device))"
+        alignment: full
+      - id: pil.ImageFilter.MinFilter
+        adapter: pil_rgb
+        call: "img.filter(PIL.ImageFilter.MinFilter(size=ksize))"
+        alignment: full
+        notes: "A min filter over a square window IS grayscale erosion by a rectangular element."
+
+  # ---------------------------------------------------------------------------------------
+  - family: dilate
+    canonical_params:
+      ksize: {type: int, grid: [3, 5], constraint: odd}
+    implementations:
+      - id: cv2.dilate
+        adapter: u8_hwc_rgb
+        call: "cv2.dilate(img, np.ones((ksize, ksize), np.uint8))"
+        alignment: full
+      - id: skimage.morphology.dilation
+        adapter: u8_hwc_rgb
+        call: "np.stack([skimage.morphology.dilation(img[:, :, c], footprint=np.ones((ksize, ksize), bool)) for c in range(img.shape[2])], axis=2)"
+        alignment: full
+      - id: kornia.morphology.dilation
+        adapter: torch_bchw_01
+        call: "kornia.morphology.dilation(img, torch.ones(ksize, ksize, device=img.device))"
+        alignment: full
+      - id: pil.ImageFilter.MaxFilter
+        adapter: pil_rgb
+        call: "img.filter(PIL.ImageFilter.MaxFilter(size=ksize))"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: resize_bilinear
+    canonical_params:
+      scale: {type: float, grid: [0.5, 2.0]}
+    implementations:
+      - id: cv2.resize_bilinear
+        adapter: u8_hwc_rgb
+        call: "cv2.resize(img, (max(1, int(round(img.shape[1] * scale))), max(1, int(round(img.shape[0] * scale)))), interpolation=cv2.INTER_LINEAR)"
+        alignment: full
+        notes: "OpenCV's INTER_LINEAR uses half-pixel centers (align_corners=False equivalent)."
+      - id: tv.resize_bilinear
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.resize(img, [max(1, int(round(img.shape[-2] * scale))), max(1, int(round(img.shape[-1] * scale)))], interpolation=torchvision.transforms.InterpolationMode.BILINEAR, antialias=False)"
+        alignment: full
+        notes: "antialias=False chosen to match cv2's non-antialiased INTER_LINEAR."
+        variants:
+          - id: tv.resize_bilinear@antialias
+            call: "torchvision.transforms.v2.functional.resize(img, [max(1, int(round(img.shape[-2] * scale))), max(1, int(round(img.shape[-1] * scale)))], interpolation=torchvision.transforms.InterpolationMode.BILINEAR, antialias=True)"
+            notes: "Alternative: torchvision's own DEFAULT (antialias=True). Isolates the antialias flag."
+      - id: kornia.geometry.resize_bilinear
+        adapter: torch_bchw_01
+        call: "kornia.geometry.transform.resize(img, (max(1, int(round(img.shape[-2] * scale))), max(1, int(round(img.shape[-1] * scale)))), interpolation='bilinear', align_corners=False, antialias=False)"
+        alignment: full
+      - id: pil.resize_bilinear
+        adapter: pil_rgb
+        call: "img.resize((max(1, int(round(img.width * scale))), max(1, int(round(img.height * scale)))), PIL.Image.BILINEAR)"
+        alignment: partial
+        notes: >
+          PIL's BILINEAR is an AREA-WEIGHTED resample on downscale (it always applies a support
+          filter), unlike cv2's INTER_LINEAR. Documented as bilinear in both; the sampling
+          construction differs. This is exactly the class of case A1/01 §2.3 flags.
+      - id: skimage.transform.rescale
+        adapter: f32_hwc_01
+        call: "skimage.transform.rescale(img, scale, order=1, channel_axis=2, anti_aliasing=False, mode='reflect')"
+        alignment: full
+
+  # ---------------------------------------------------------------------------------------
+  - family: sharpness
+    canonical_params:
+      factor: {type: float, grid: [1.5, 2.0]}
+    implementations:
+      - id: pil.ImageEnhance.Sharpness
+        adapter: pil_rgb
+        call: "PIL.ImageEnhance.Sharpness(img).enhance(factor)"
+        alignment: full
+        notes: "PIL blends the image with a fixed 3x3 smoothing kernel result; factor=1 is identity."
+      - id: tv.adjust_sharpness
+        adapter: torch_bchw_01
+        call: "torchvision.transforms.v2.functional.adjust_sharpness(img, sharpness_factor=factor)"
+        alignment: full
+        notes: "torchvision documents this as the PIL ImageEnhance.Sharpness operation."
+      - id: kornia.enhance.sharpness
+        adapter: torch_bchw_01
+        call: "kornia.enhance.sharpness(img, factor)"
+        alignment: partial
+        notes: >
+          Kornia documents `sharpness` as the same PIL-style operation but its factor is applied
+          as a blend weight on a smoothed image without PIL's border-preserving special case, so
+          the two agree in intent and are not documented as numerically identical. PARTIAL.

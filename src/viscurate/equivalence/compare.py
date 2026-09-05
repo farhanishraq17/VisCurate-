@@ -21,6 +21,7 @@ interface.
 from __future__ import annotations
 
 import json
+import time
 from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -29,6 +30,7 @@ from typing import Protocol
 import numpy as np
 
 from viscurate.equivalence.backends import PerceptualBackend, SemanticBackend, cosine_distance
+from viscurate.instrument.telemetry import active_recorder, peak_gpu_memory_bytes
 from viscurate.skills.canonicalize import (
     Canonical,
     canonicalize,
@@ -81,7 +83,7 @@ def _params_key(params: Params | None) -> str:
 
 
 def _outputset_nbytes(result: OutputSet) -> int:
-    """Approx retained array bytes of an OutputSet (raw outputs + canonical rgb over the battery)."""
+    """Approx retained array bytes of an OutputSet (raw outputs + canon rgb over the battery)."""
     total = 0
     for im in result.raw.values():
         total += int(getattr(im, "nbytes", 0))
@@ -163,9 +165,7 @@ class BatteryEvaluator:
     def add_skill(self, skill: Skill) -> None:
         """Register a new skill for subsequent output queries and clear stale cache entries."""
         self._skills[skill.id] = skill
-        self._cache = OrderedDict(
-            (k, v) for k, v in self._cache.items() if k[0] != skill.id
-        )
+        self._cache = OrderedDict((k, v) for k, v in self._cache.items() if k[0] != skill.id)
         self._entry_bytes = {k: b for k, b in self._entry_bytes.items() if k[0] != skill.id}
         self._cache_bytes = sum(self._entry_bytes.values())
 
@@ -230,12 +230,30 @@ class BatteryEvaluator:
     def outputs(
         self, skill_id: str, params: Params | None = None, *, seed: int | None = None
     ) -> OutputSet:
+        """Execute ``skill_id`` over the whole battery, or return the cached OutputSet.
+
+        Emits one ``signature_compute`` telemetry event per call with ``cache_hit`` set, which is
+        how A4 shows execution is paid once per ``(skill, params, seed)`` and reused across every
+        pair that needs it, rather than recomputed per pair.
+        """
+        rec = active_recorder()
+        t0 = time.perf_counter()
         skill = self._skills[skill_id]
         validated = skill.params_schema.validate_params(params)
         use_seed = self._seed if seed is None else seed
         key = (skill_id, _params_key(validated), use_seed)
         cached = self._cache_get(key)
         if cached is not None:
+            rec.signature_compute(
+                skill_id=skill_id,
+                n_probes=len(cached.probe_ids),
+                n_grid=1,
+                wall_ms=(time.perf_counter() - t0) * 1000.0,
+                gpu_ms=0.0,
+                peak_mem=0,
+                backend="execute",
+                cache_hit=True,
+            )
             return cached
         ids: list[str] = []
         canon: dict[str, Canonical] = {}
@@ -258,6 +276,16 @@ class BatteryEvaluator:
             errors=errors,
         )
         self._cache_put(key, result)
+        rec.signature_compute(
+            skill_id=skill_id,
+            n_probes=len(ids),
+            n_grid=1,
+            wall_ms=(time.perf_counter() - t0) * 1000.0,
+            gpu_ms=0.0,
+            peak_mem=peak_gpu_memory_bytes(),
+            backend="execute",
+            cache_hit=False,
+        )
         return result
 
     def compose_outputs(

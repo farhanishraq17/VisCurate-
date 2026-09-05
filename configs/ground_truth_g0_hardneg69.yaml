@@ -1,0 +1,158 @@
+# The designed relation graph G0 — HARD-NEGATIVE-EXPANDED variant.
+#
+# WHY THIS FILE EXISTS. The paper's designated headline (sec/6_methodology.tex:192) is the
+# false-merge rate on the engineered hard-negative slice, and that slice has SIX pairs. Observing
+# 0/6 admits a one-sided 95% upper bound of 39.3% — the headline number is the statistically
+# weakest one in the paper. This variant expands the slice to 69, where a clean 0/69 admits
+# 4.25%, which is what a credible "at most 5%" claim requires.
+#
+# `configs/ground_truth_g0.yaml` is left BYTE-IDENTICAL so the existing 944-pair benchmark stays
+# frozen and comparable; this is a separate answer key, not an edit to the old one.
+#
+# HOW THESE 63 WERE CHOSEN — and how they were NOT. Each is a pair whose NAMES and DESCRIPTIONS
+# read as near-duplicates while the operations differ: five smoothing kernels that all
+# "convolve with a kernel"; high-pass in the spatial vs the Fourier domain; four padding border
+# modes; the four fixed-angle rotations against each other; additive vs multiplicative brightness;
+# three histogram-equalization variants sharing the `equalize_` stem; fixed vs Otsu vs adaptive
+# thresholding; open/close against the erode/dilate primitives they are built from.
+#
+# They were authored from the library's own design intent — the operator definitions — and NOT by
+# looking at any verifier output, any distance, or any run in `results/`. No pair was selected,
+# kept, or dropped because of how a method scored on it, which is the no-test-driven-repair rule
+# (Experiments/README.md §Non-negotiable rules 1). Two mechanical checks were enforced instead:
+# every id exists in the built-in registry, and no pair is already claimed by
+# `subsumption` / `semantic_preserving` / `complementary` — a hard negative that contradicts the
+# rest of the key would be a labelling bug, not a boundary case.
+#
+# STILL DESIGN INTENT, NOT CERTIFIED TRUTH. Like the labels in the base file, these are authored
+# claims and belong in the human-review slice (`benchmark/human_review.py`) before any number
+# derived from them is called ground truth. The 0/69 bound above is what the slice WOULD support
+# if it comes back clean; it is not a result.
+
+version: "1"
+
+# EXACT duplicates: none in the clean base. (Injected in Phase 5 corruption.)
+exact: []
+
+# PERCEPTUAL duplicates: none in the clean base. (Injected in Phase 5.)
+perceptual: []
+
+# SUBSUMPTION (directional): `spec ⊑ gen` — every output of `spec` is reproduced by some
+# parameterization of the more-general `gen`, but not conversely (CLAUDE.md §3.5.4).
+subsumption:
+  # Fixed-angle rotations are special cases of the general canvas rotation.
+  - { spec: rotate_90_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_180_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_270_v1, gen: rotate_canvas_degrees_v1 }
+  - { spec: rotate_45_v1, gen: rotate_canvas_degrees_v1 }
+  # A centered percentage crop is a special case of an arbitrary bounding-box crop.
+  - { spec: crop_center_percentage_v1, gen: crop_bounding_box_v1 }
+  # A linear contrast stretch == percentile(0,100); the percentile op generalizes it.
+  - { spec: linear_contrast_stretch_v1, gen: contrast_stretching_percentile_v1 }
+  # …and levels_adjust generalizes a plain linear stretch as well.
+  - { spec: linear_contrast_stretch_v1, gen: levels_adjust_v1 }
+
+# SEMANTIC_PRESERVING (symmetric, NOT transitive): the "same semantic transformation, different
+# algorithm" neighbours. This is the only class NOT settled by construction — the metric
+# *proposes* it and a human confirms (CLAUDE.md §3.5.4). Listed unordered.
+semantic_preserving:
+  # Two luma weightings for grayscale.
+  - [grayscale_bt601_v1, grayscale_bt709_v1]
+  # The gradient edge family (Sobel/Scharr/Prewitt are near-identical 3×3 gradient operators).
+  - [edges_sobel_v1, edges_scharr_v1]
+  - [edges_sobel_v1, edges_prewitt_v1]
+  - [edges_scharr_v1, edges_prewitt_v1]
+  # Canny (binary edges) and Laplacian (2nd-order) are looser edge-family neighbours —
+  # design intent, explicitly routed to human re-certification.
+  - [edges_sobel_v1, edges_canny_v1]
+  - [edges_sobel_v1, edges_laplacian_v1]
+  # Two ways to brighten/darken multiplicatively in linear vs gamma space.
+  - [gamma_correct_v1, exposure_stops_v1]
+  # Global vs adaptive (CLAHE) histogram equalization.
+  - [equalize_histogram_global_v1, equalize_clahe_v1]
+  # Two inpainting algorithms (Telea fast-marching vs Navier–Stokes).
+  - [inpaint_telea_v1, inpaint_ns_v1]
+  # Two adaptive/auto thresholding methods.
+  - [threshold_otsu_v1, threshold_adaptive_mean_v1]
+
+# COMPLEMENTARY (symmetric): orthogonal/composable ops that operate on disjoint aspects
+# (CLAUDE.md §3.5.4). Morphological dilation and erosion are the canonical complementary pair;
+# open/close are built from them.
+complementary:
+  - [morphology_dilate_v1, morphology_erode_v1]
+
+# DISTINCT hard negatives (CLAUDE.md §2.3, §3.5.4): engineered boundary cases that LOOK similar
+# (similar names/descriptions) but are genuinely different operations. This is where text judges
+# fail and the output-grounded contribution lives — reported as a separate slice.
+distinct_hard_negatives:
+  - [blur_gaussian_v1, blur_box_v1] # agree at small k, diverge at large k
+  - [resize_nearest_v1, resize_bilinear_v1]
+  - [resize_bilinear_v1, resize_bicubic_v1]
+  - [resize_nearest_v1, resize_bicubic_v1]
+  - [pad_reflect_v1, pad_replicate_v1]
+  - [posterize_v1, quantize_uniform_v1]
+
+  # ---- expansion to n=69 (see the header) ----------------------------------------
+  - [blur_gaussian_v1, blur_median_v1]
+  - [blur_gaussian_v1, blur_bilateral_v1]
+  - [blur_gaussian_v1, blur_motion_v1]
+  - [blur_box_v1, blur_median_v1]
+  - [blur_box_v1, blur_bilateral_v1]
+  - [blur_box_v1, blur_motion_v1]
+  - [blur_median_v1, blur_bilateral_v1]
+  - [blur_median_v1, blur_motion_v1]
+  - [blur_bilateral_v1, blur_motion_v1]
+  - [high_pass_fft_v1, high_pass_spatial_v1]
+  - [high_pass_fft_v1, low_pass_fft_v1]
+  - [high_pass_spatial_v1, low_pass_fft_v1]
+  - [edges_canny_v1, edges_laplacian_v1]
+  - [difference_of_gaussians_v1, high_pass_spatial_v1]
+  - [difference_of_gaussians_v1, sharpen_laplacian_kernel_v1]
+  - [scale_xy_v1, resize_bilinear_v1]
+  - [pad_constant_v1, pad_reflect_v1]
+  - [pad_constant_v1, pad_replicate_v1]
+  - [pad_to_square_v1, pad_constant_v1]
+  - [rotate_90_v1, rotate_180_v1]
+  - [rotate_90_v1, rotate_270_v1]
+  - [rotate_180_v1, rotate_270_v1]
+  - [rotate_45_v1, rotate_90_v1]
+  - [flip_horizontal_v1, flip_vertical_v1]
+  - [flip_horizontal_v1, transpose_v1]
+  - [flip_vertical_v1, transpose_v1]
+  - [transpose_v1, rotate_90_v1]
+  - [shear_horizontal_v1, shear_vertical_v1]
+  - [crop_center_percentage_v1, random_crop_v1]
+  - [crop_bounding_box_v1, random_crop_v1]
+  - [zoom_in_center_v1, crop_center_percentage_v1]
+  - [translate_v1, scale_xy_v1]
+  - [tile_2x2_v1, overlay_grid_v1]
+  - [grayscale_bt601_v1, desaturate_partial_v1]
+  - [brightness_add_v1, brightness_multiply_v1]
+  - [brightness_multiply_v1, contrast_scale_v1]
+  - [gamma_correct_v1, levels_adjust_v1]
+  - [contrast_scale_v1, linear_contrast_stretch_v1]
+  - [contrast_stretching_percentile_v1, equalize_histogram_global_v1]
+  - [equalize_histogram_global_v1, equalize_per_channel_v1]
+  - [equalize_clahe_v1, equalize_per_channel_v1]
+  - [posterize_v1, solarize_v1]
+  - [quantize_uniform_v1, palette_reduce_kmeans_v1]
+  - [quantize_uniform_v1, dither_floyd_steinberg_v1]
+  - [posterize_v1, dither_floyd_steinberg_v1]
+  - [threshold_binary_v1, threshold_otsu_v1]
+  - [threshold_binary_v1, threshold_adaptive_mean_v1]
+  - [hue_shift_v1, color_temperature_shift_v1]
+  - [saturation_gain_v1, desaturate_partial_v1]
+  - [sepia_tone_v1, gradient_map_duotone_v1]
+  - [color_balance_rgb_v1, color_temperature_shift_v1]
+  - [channel_isolate_v1, channel_swap_rgb_bgr_v1]
+  - [invert_v1, solarize_v1]
+  - [morphology_open_v1, morphology_close_v1]
+  - [morphology_open_v1, morphology_erode_v1]
+  - [morphology_close_v1, morphology_dilate_v1]
+  - [sharpen_laplacian_kernel_v1, sharpen_unsharp_v1]
+  - [add_gaussian_noise_v1, add_salt_pepper_noise_v1]
+  - [mosaic_pixelate_v1, halftone_dots_v1]
+  - [sketch_pencil_v1, emboss_v1]
+  - [cartoonize_v1, sketch_pencil_v1]
+  - [connected_components_colormap_v1, contours_draw_v1]
+  - [distance_transform_v1, threshold_otsu_v1]

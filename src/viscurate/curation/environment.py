@@ -19,6 +19,7 @@ to an ``fn`` would produce untrusted code — those stay blocked pending the har
 
 from __future__ import annotations
 
+import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -33,6 +34,7 @@ from viscurate.equivalence.backends import PerceptualBackend, SemanticBackend
 from viscurate.equivalence.compare import BatteryEvaluator, OutputProvider
 from viscurate.equivalence.param_alignment import ParamAlignment
 from viscurate.equivalence.taxonomy import classify
+from viscurate.instrument.telemetry import active_recorder
 from viscurate.logging import get_logger
 from viscurate.skills.canonicalize import max_abs_pixel_diff
 from viscurate.skills.model import Image, ParamSpec, ParamsSchema, Skill, SkillMetadata
@@ -112,6 +114,7 @@ class CurationEnvironment:
         budget: int = 50,
         usage_fold_threshold: int = 1,
         logger: Any | None = None,
+        instance_id: str = "",
     ) -> None:
         self._registry = registry
         self._provider = provider
@@ -127,6 +130,9 @@ class CurationEnvironment:
         )
         self._budget = budget
         self._usage_fold_threshold = usage_fold_threshold
+        # Carried only so ``run_episode``'s telemetry can attribute cost to the L_rho instance
+        # being curated; the environment never reads it and no decision depends on it.
+        self.instance_id = instance_id
         self._log = logger or get_logger("curation")
         self._history: list[ActionResult] = []
         self._actions_taken = 0
@@ -602,7 +608,15 @@ def run_episode(
     """Drive ``agent`` against ``env`` until it ends, the budget is spent, or ``max_steps``.
 
     ``agent`` must implement ``propose(state) -> Action`` (the :class:`CurationAgent` protocol).
+
+    Emits one ``agent_episode`` telemetry event on completion. The per-status action counts are
+    the episode's own (:meth:`EpisodeResult.counts`), so the recorded totals cannot drift from the
+    action log the score is computed from. Token totals are *not* recorded here — the per-call
+    ``llm_call`` events carry them, and summing them per episode at analysis time avoids
+    double-counting a client shared across episodes.
     """
+    rec = active_recorder()
+    t0 = time.perf_counter()
     size_before = len(env.registry)
     ended = False
     steps = 0
@@ -613,9 +627,23 @@ def run_episode(
         if action.kind is ActionKind.END:
             ended = True
             break
-    return EpisodeResult(
+    result = EpisodeResult(
         log=env.history,
         size_before=size_before,
         size_after=len(env.registry),
         ended=ended,
     )
+    counts = result.counts()
+    rec.agent_episode(
+        model=getattr(agent, "name", type(agent).__name__),
+        instance_id=getattr(env, "instance_id", ""),
+        n_actions=len(result.log),
+        n_applied=counts.get(ActionStatus.APPLIED.value, 0),
+        n_rejected=counts.get(ActionStatus.REJECTED.value, 0),
+        n_blocked=counts.get(ActionStatus.BLOCKED.value, 0),
+        n_invalid=counts.get(ActionStatus.INVALID.value, 0),
+        tokens_in=0,
+        tokens_out=0,
+        wall_ms=(time.perf_counter() - t0) * 1000.0,
+    )
+    return result

@@ -44,3 +44,8 @@ Thumbs.db
 
 # Local tool settings
 .claude/settings.local.json
+
+# WACV-R2 fork-pair corpus (pilgram / pilgram2 / imgaug) vendored for scripts/wacv_r2 — third-party
+# code, 8.7 MB. Recreate with:
+#   pip install --target .corpusb_libs pilgram==2.0.0 pilgram2==2.0.10 imgaug==0.4.0
+.corpusb_libs/
