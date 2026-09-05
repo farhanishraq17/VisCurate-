@@ -30,6 +30,24 @@ LPIPS/DINO/CLIP divergence go/no-go run and the full study grid.
   manifest-backed reproducibility bundle, realism audit, `reproduce.sh`, and Phase-8 paper
   tables/figures when supplied real `StudyPoint` rows.
 
+## WACV 2027 round-2 experiments (Aug 2026)
+
+Work for the four Area-Chair revisions (real-library evaluation, text/embedding baselines +
+verifier self-validation, distributional similarity, scalability/cost).
+
+- **Plans and runbook:** [docs/wacv_r2/](docs/wacv_r2/) — `A1/`–`A4/` designs,
+  `RUNBOOK.md`, `NEXT_ACTIONS.md`, `SPRINT_3DAY.md`, and the critique adjudication
+  (`GPT_OPINION.md` → `CRITIQUE_RESPONSE.md` → `CODEBASE_RECONCILIATION.md`).
+- **Results write-up:** [findings.md](findings.md). Raw artifacts land in `results/wacv_r2/`
+  (git-ignored; regenerated from manifests).
+- **Code:** `src/viscurate/instrument/` (A4 telemetry: per-call `llm_call`, `signature_compute`,
+  `pair_verify`, `candidate_gen`, `agent_episode` events), `src/viscurate/baselines/embedders.py`
+  and `code_judges.py` (A2 rungs 3/4/5/7), `scripts/wacv_r2/` (runners and aggregators),
+  `configs/ground_truth_g0_hardneg*.yaml` (hard-negative slice expanded to n ≥ 59).
+- **Environment:** `source vc_env.sh`. The fork-pair corpus (`pilgram`, `pilgram2`) is vendored
+  into the git-ignored `.corpusb_libs/`; the recreate command is in `.gitignore`. Put it on
+  `PYTHONPATH` before running the Corpus-A scripts.
+
 ## Architectural rule (load-bearing)
 
 The output-grounded comparator path **must never read a skill's `description`**. Text and
