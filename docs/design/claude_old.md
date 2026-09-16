@@ -395,7 +395,7 @@ the original **Phase 2 plan**.*
 
 > **Note (current status):** This appendix is preserved as the *historical* log. Phases 0–3 are
 > now complete; the authoritative, up-to-date status lives in
-> [docs/phase_summaries.md](docs/phase_summaries.md) and [Project_Pipeline.md](Project_Pipeline.md).
+> [docs/phase_summaries.md](../../docs/phase_summaries.md) and [Project_Pipeline.md](Project_Pipeline.md).
 
 > Status at time of writing (2026-06-23): Phase 0 complete; **Phase 1 complete — all 100
 > skills implemented**; gate fully green (`ruff`, `ruff format`, `mypy --strict`, 144 tests).
@@ -409,7 +409,7 @@ substrate**: a typed skill model, a serializable registry, the output canonicali
 contract, a sandboxed executor, and a first batch of deterministic skills. Everything here
 is **ML-dependency-free** by design (CLAUDE.md §4) — torch/LPIPS/DINO only enter in Phase 3.
 
-### A.1.1 The `Skill` model — [src/viscurate/skills/model.py](src/viscurate/skills/model.py)
+### A.1.1 The `Skill` model — [src/viscurate/skills/model.py](../../src/viscurate/skills/model.py)
 
 A skill is `fn(image, params, seed) -> image` plus typed metadata. The model encodes two
 load-bearing boundaries **structurally** (by type), so they can't be violated by accident:
@@ -431,7 +431,7 @@ Supporting pieces:
 - **`SkillSpec`** — the JSON-serializable view of a skill (everything except the callable),
   used for persistence.
 
-### A.1.2 The registry — [src/viscurate/skills/registry.py](src/viscurate/skills/registry.py)
+### A.1.2 The registry — [src/viscurate/skills/registry.py](../../src/viscurate/skills/registry.py)
 
 An ordered, id-unique collection. It is **JSON-serializable**: `to_json()` emits `SkillSpec`
 records (no callables); `from_json(text, resolver)` rebinds each skill's `fn` via an
@@ -439,7 +439,7 @@ id→callable **resolver**. For the built-in library that resolver is the librar
 table. Skill ids are stable and never reused, so the mapping is a durable contract. Tested
 for round-trip fidelity *and* that a reloaded skill executes byte-identically.
 
-### A.1.3 The canonicalization contract — [src/viscurate/skills/canonicalize.py](src/viscurate/skills/canonicalize.py)
+### A.1.3 The canonicalization contract — [src/viscurate/skills/canonicalize.py](../../src/viscurate/skills/canonicalize.py)
 
 Skills emit heterogeneous outputs (grayscale, RGBA, binary masks, edge maps, shape-changing
 geometric ops). Comparison needs one fixed, **versioned** rule (`CANON_VERSION = "1.0.0"`):
@@ -455,11 +455,11 @@ geometric ops). Comparison needs one fixed, **versioned** rule (`CANON_VERSION =
 EXACT duplicates collide and guarantees different shapes never do. The contract is itself a
 versioned object so relation labels stay reproducible.
 
-### A.1.4 The sandboxed executor — [src/viscurate/skills/executor.py](src/viscurate/skills/executor.py)
+### A.1.4 The sandboxed executor — [src/viscurate/skills/executor.py](../../src/viscurate/skills/executor.py)
 
 Lightweight isolation appropriate for the trusted 100-skill starter set (CLAUDE.md D6):
 
-- Each execution runs in a **fresh subprocess** ([_worker.py](src/viscurate/skills/_worker.py))
+- Each execution runs in a **fresh subprocess** ([_worker.py](../../src/viscurate/skills/_worker.py))
   with a **wall-clock timeout**, so a hanging or crashing skill returns a structured
   `ExecutionResult` instead of taking down the harness.
 - On POSIX (the WSL2 dev target) it adds `RLIMIT_AS` / `RLIMIT_CPU` via `preexec_fn`. On
@@ -470,10 +470,10 @@ Lightweight isolation appropriate for the trusted 100-skill starter set (CLAUDE.
 
 `ExecutionResult` carries `ok / output / error / duration_s / timed_out / blocked /
 returncode`. Intentionally-misbehaving skills for testing the failure paths live in
-[_testkit.py](src/viscurate/skills/_testkit.py) (sleeper, crasher) — an importable module so
+[_testkit.py](../../src/viscurate/skills/_testkit.py) (sleeper, crasher) — an importable module so
 the subprocess can always resolve them.
 
-### A.1.5 The skill library (100 / 100 — complete) — [src/viscurate/skills/library/](src/viscurate/skills/library/)
+### A.1.5 The skill library (100 / 100 — complete) — [src/viscurate/skills/library/](../../src/viscurate/skills/library/)
 
 The clean base **L0**: defect-free (no bugs, duplicates, or dead skills — those are
 *injected later* at a controlled rate ρ in Phase 5). All 100 deterministic skills, across
@@ -515,14 +515,14 @@ size-independent and the center-crop subsumption holds exactly.
 
 ### A.1.6 Supporting scaffold (Phase 0, recap)
 
-[config.py](src/viscurate/config.py) (frozen Pydantic YAML; `calibrated=True` requires
-provenance), [rng.py](src/viscurate/rng.py) (BLAKE2b seed derivation, no global state),
-[logging.py](src/viscurate/logging.py) (structlog JSON), [cli.py](src/viscurate/cli.py),
+[config.py](../../src/viscurate/config.py) (frozen Pydantic YAML; `calibrated=True` requires
+provenance), [rng.py](../../src/viscurate/rng.py) (BLAKE2b seed derivation, no global state),
+[logging.py](../../src/viscurate/logging.py) (structlog JSON), [cli.py](../../src/viscurate/cli.py),
 and CI across Python 3.11–3.13.
 
 ### A.1.7 Tests & verification
 
-[tests/](tests/) — 144 tests covering config validation, RNG determinism/independence,
+[tests/](../../tests/) — 144 tests covering config validation, RNG determinism/independence,
 param coercion, the modality/label boundaries, registry round-trip + identical re-execution,
 the full canonicalization contract, all 100 skills (determinism + canonicalization,
 parametrized), the determinism-flag assignments, the planted relations (incl. the RGBA path),
