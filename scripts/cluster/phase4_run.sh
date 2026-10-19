@@ -31,8 +31,8 @@
 #   PYTHON_BIN=...      python interpreter (default: the viscurate conda env)
 #
 # Usage:
-#   ./phase4_run.sh                                     # 43-probe smoke battery, CPU, Sonnet 4.6 judge
-#   PROBES_DIR=data/probe_images_full ./phase4_run.sh   # full 177-probe battery (the real go/no-go), CPU
+#   scripts/cluster/phase4_run.sh                                     # 43-probe smoke battery, CPU, Sonnet 4.6 judge
+#   PROBES_DIR=data/probe_images_full scripts/cluster/phase4_run.sh   # full 177-probe battery (the real go/no-go), CPU
 set -euo pipefail
 
 DEVICE="${DEVICE:-cpu}"
@@ -44,7 +44,7 @@ MAX_CACHE="${MAX_CACHE:-256}"   # LRU bound on the output cache (0 = unbounded)
 PYTHON_BIN="${PYTHON_BIN:-/scratch/general/nfs1/u1592009/miniconda3/envs/viscurate/bin/python}"
 
 # Run from the repo root so configs/, data/, and .env resolve regardless of CWD.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 export PYTHONPATH="src${PYTHONPATH:+:$PYTHONPATH}"
 
 if [[ ! -f "${PROBES_DIR}/manifest.json" ]]; then

@@ -12,7 +12,7 @@
 # Env: NWORKERS(4) MAX_CACHE(64) MODEL PORT DEVICE CONFIG INSTANCES_DIR PROBES_DIR OUT_ROOT
 #      MAX_STEPS(200) VISION_GPU(1) PYTHON_BIN NO_CLIP
 set -uo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then set -a; source .env; set +a; fi
 export PYTHONPATH="src${PYTHONPATH:+:$PYTHONPATH}"
 

@@ -15,7 +15,7 @@ PYTHON_BIN="${PYTHON_BIN:-/scratch/general/nfs1/u1592009/miniconda3/envs/tw_r1_q
 ENV_BIN="$(dirname "$PYTHON_BIN")"
 ENV_ROOT="$(dirname "$ENV_BIN")"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC1091
@@ -125,7 +125,7 @@ for idx in "${!MODEL_IDS[@]}"; do
   MAX_MODEL_LEN="$MAX_MODEL_LEN" \
   PYTHON_BIN="$PYTHON_BIN" \
   VLLM_EXTRA_ARGS="$extra_args" \
-  bash run_vllm_curation_sweep.sh 2>&1 | tee "$log_path"
+  bash scripts/cluster/run_vllm_curation_sweep.sh 2>&1 | tee "$log_path"
   exit_code="${PIPESTATUS[0]}"
   completed="$(score_count "$out_root")"
 

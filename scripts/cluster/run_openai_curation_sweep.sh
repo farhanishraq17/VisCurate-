@@ -12,7 +12,7 @@ FORCE="${FORCE:-0}"
 NO_ML="${NO_ML:-1}"
 PYTHON_BIN="${PYTHON_BIN:-/scratch/general/nfs1/u1592009/miniconda3/envs/tw_r1_q3/bin/python}"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 export PYTHONPATH="src${PYTHONPATH:+:$PYTHONPATH}"
 
 if [[ -f .env ]]; then

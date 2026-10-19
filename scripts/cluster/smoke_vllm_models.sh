@@ -18,7 +18,7 @@ PROBES_DIR="${PROBES_DIR:-data/probe_images}"
 OUT_ROOT="${OUT_ROOT:-results/vllm_smoke_tests}"
 LOG_ROOT="${LOG_ROOT:-results/vllm_smoke_tests/logs}"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC1091
@@ -100,7 +100,7 @@ for idx in "${!MODEL_IDS[@]}"; do
 
   stop_server
 
-  if ! MODEL="$model" MAX_MODEL_LEN="$MAX_MODEL_LEN" VLLM_EXTRA_ARGS="$extra_args" bash start_vlm.sh --model "$model" --port "$PORT" >"$server_log" 2>&1; then
+  if ! MODEL="$model" MAX_MODEL_LEN="$MAX_MODEL_LEN" VLLM_EXTRA_ARGS="$extra_args" bash scripts/cluster/start_vlm.sh --model "$model" --port "$PORT" >"$server_log" 2>&1; then
     {
       echo "model=${model}"
       echo "alias=${alias}"

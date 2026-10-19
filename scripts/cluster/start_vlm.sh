@@ -1,10 +1,10 @@
 #!/bin/bash
 # Working vLLM server script that calculates GPU memory automatically
-# Usage: ./startQwen.sh [--port PORT] [--model MODEL_PATH]
+# Usage: scripts/cluster/start_vlm.sh [--port PORT] [--model MODEL_PATH]
 #   --port: Port number for vLLM server (default: 8001)
 #   --model: Path to model directory (default: /scratch/general/nfs1/u1592009/LLaMA-Factory/saves/qwen3-4b-8k-full-epoch3)
-# Example: ./startQwen.sh --port 8001
-# Example: ./startQwen.sh --port 8002 --model /path/to/model
+# Example: scripts/cluster/start_vlm.sh --port 8001
+# Example: scripts/cluster/start_vlm.sh --port 8002 --model /path/to/model
 export VLLM_ATTENTION_BACKEND=FLASH_ATTN
 # Parse command-line arguments
 PORT=8001  # Default port

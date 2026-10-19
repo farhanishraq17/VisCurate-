@@ -3,8 +3,8 @@
 # over the whole corruption sweep, served by a local vLLM. TURNKEY: to run a different model
 # you change ONLY $MODEL; every other decision below is baked in and vetted.
 #
-#   MODEL=Qwen/Qwen3.5-4B                bash phase6_run.sh   # default
-#   MODEL=meta-llama/Llama-3.1-8B-Instruct bash phase6_run.sh
+#   MODEL=Qwen/Qwen3.5-4B                bash scripts/cluster/phase6_run.sh   # default
+#   MODEL=meta-llama/Llama-3.1-8B-Instruct bash scripts/cluster/phase6_run.sh
 #
 # What this does (see .cursor/skills/run-curation-ml-sweep/SKILL.md for the full rationale):
 #   1. Uses the `viscurate` conda env for BOTH the vLLM server and the curate clients — it has
@@ -35,7 +35,7 @@
 #   NO_CLIP=1     drop the CLIP view (keeps LPIPS + DINO)
 #   PORT DEVICE MAX_STEPS PROBES_DIR INSTANCES_DIR OUT_ROOT PYTHON_BIN KEEP_SERVER GPU_MEM_UTIL MAX_MODEL_LEN
 set -uo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then set -a; source .env; set +a; fi
 
 VISCURATE_ENV="/scratch/general/nfs1/u1592009/miniconda3/envs/viscurate"
@@ -104,4 +104,4 @@ INSTANCES_DIR="${INSTANCES_DIR:-data/corruption}" PROBES_DIR="${PROBES_DIR:-data
 OUT_ROOT="${OUT_ROOT:-results/phase6_${MODEL_ALIAS}_full}" MAX_STEPS="${MAX_STEPS:-200}" \
 NWORKERS="$NWORKERS" MAX_CACHE_GB="$MAX_CACHE_GB" VISION_GPUS="$VISION_GPUS" \
 NO_CLIP="${NO_CLIP:-0}" PYTHON_BIN="$PYTHON_BIN" \
-    bash phase6_parallel.sh
+    bash scripts/cluster/phase6_parallel.sh

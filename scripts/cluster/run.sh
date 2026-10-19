@@ -4,7 +4,7 @@
 #
 # Pipeline:
 #   1. build a small synthetic probe battery (offline) if one is not already present
-#   2. start the vLLM server via ./start_vlm.sh and wait for /health
+#   2. start the vLLM server via scripts/cluster/start_vlm.sh and wait for /health
 #   3. run `viscurate curate` with --openai-model pointed at the served model
 #   4. stop the server (unless KEEP_SERVER=1)
 #
@@ -12,11 +12,11 @@
 # Allocate one in your tmux pane first, e.g.:  salloc --gres=gpu:1 --time=02:00:00 ...
 #
 # Usage:
-#   ./run.sh                                  # Qwen/Qwen3-4B as curation agent on :8001
-#   ./run.sh --model Qwen/Qwen3-4B --port 8002
-#   ./run.sh --instance data/corruption/rho010_uniform_seed1234_single
-#   ./run.sh --no-build                       # reuse an existing probe battery
-#   KEEP_SERVER=1 ./run.sh                    # leave the vLLM server running afterwards
+#   scripts/cluster/run.sh                                  # Qwen/Qwen3-4B as curation agent on :8001
+#   scripts/cluster/run.sh --model Qwen/Qwen3-4B --port 8002
+#   scripts/cluster/run.sh --instance data/corruption/rho010_uniform_seed1234_single
+#   scripts/cluster/run.sh --no-build                       # reuse an existing probe battery
+#   KEEP_SERVER=1 scripts/cluster/run.sh                    # leave the vLLM server running afterwards
 set -euo pipefail
 
 # --- defaults -------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Run from the repo root so configs/, data/, and start_vlm.sh resolve regardless of CWD.
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 BASE_URL="http://localhost:${PORT}/v1"
 
 # Prefer the installed console script; fall back to running from source (no pip install needed).
@@ -62,7 +62,7 @@ fi
 # --- preflight: GPU --------------------------------------------------------------------------
 if ! command -v nvidia-smi &>/dev/null || ! nvidia-smi &>/dev/null; then
     echo "ERROR: no GPU visible (nvidia-smi failed). Allocate a GPU in this tmux pane first," >&2
-    echo "       e.g.  salloc --gres=gpu:1 --time=02:00:00 ...   then re-run ./run.sh" >&2
+    echo "       e.g.  salloc --gres=gpu:1 --time=02:00:00 ...   then re-run scripts/cluster/run.sh" >&2
     exit 1
 fi
 
@@ -97,7 +97,7 @@ trap cleanup EXIT INT TERM
 echo "[2/3] Starting vLLM server: ${MODEL} on :${PORT} (log: ${SERVER_LOG})"
 # start_vlm.sh already tees the server process to vllm_server.log. Call it directly so its
 # background vLLM process does not keep an outer tee open and block the curation step.
-bash start_vlm.sh --model "$MODEL" --port "$PORT"
+bash scripts/cluster/start_vlm.sh --model "$MODEL" --port "$PORT"
 SERVER_STARTED=1
 
 if ! curl -sf "http://localhost:${PORT}/health" >/dev/null; then

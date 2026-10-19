@@ -9,8 +9,8 @@ description: Run the VisCurate Phase-6 curation agent over the full corruption s
 
 ```bash
 cd /scratch/general/nfs1/u1592009/TimeWarp/VisCurate-
-MODEL=Qwen/Qwen3.5-4B bash phase6_run.sh          # default
-MODEL=meta-llama/Llama-3.1-8B-Instruct bash phase6_run.sh
+MODEL=Qwen/Qwen3.5-4B bash scripts/cluster/phase6_run.sh          # default
+MODEL=meta-llama/Llama-3.1-8B-Instruct bash scripts/cluster/phase6_run.sh
 ```
 
 `phase6_run.sh` is the single entry point. It starts (or reuses) one vLLM server and fans the

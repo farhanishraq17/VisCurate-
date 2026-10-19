@@ -502,6 +502,10 @@ options with `--help`.
 | RQ5 · cost and scalability | `a4_candidate_sweep.py`, `a4_full.py`, `analyze_telemetry.py` |
 | Extensions · neural, OOD, ablation | `run_a3_neural.py`, `run_ood.py`, `run_probe_ablation.py` |
 
+The benchmark and the 300-instance curation sweeps were run on a GPU cluster with vLLM. The shell
+drivers for those runs (model serving, sweeps and queues) are in [`scripts/cluster/`](scripts/cluster/);
+each can be launched from any directory and resolves the repository root itself.
+
 ---
 
 ## Repository Structure
@@ -517,10 +521,15 @@ VisCurate-/
 │   ├── corruption/      defect factories, planner, replay, corruption grid
 │   ├── curation/        environment, actions, verifier gate, agents, trust policy
 │   └── cli.py           the `viscurate` command-line interface
-├── scripts/wacv_r2/     experiment runners for the paper's results
+├── scripts/
+│   ├── wacv_r2/         experiment runners for the paper's results
+│   └── cluster/         vLLM serving, benchmark and curation-sweep drivers
 ├── configs/             YAML configuration (probes, thresholds, ground truth, corruption grid)
 ├── data/                committed probe-battery manifest and COCO metadata
-└── tests/               determinism, contract and gating tests
+├── docs/                results report and figures
+├── tests/               determinism, contract and gating tests
+├── pyproject.toml
+└── requirements.txt
 ```
 
 ---

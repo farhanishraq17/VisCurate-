@@ -12,7 +12,7 @@ FORCE="${FORCE:-0}"
 NO_ML="${NO_ML:-1}"
 PYTHON_BIN="${PYTHON_BIN:-/scratch/general/nfs1/u1592009/miniconda3/envs/tw_r1_q3/bin/python}"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then
     set -a
     # shellcheck disable=SC1091
@@ -46,7 +46,7 @@ if curl -sf "http://localhost:${PORT}/health" >/dev/null; then
     echo "Reusing existing vLLM server at http://localhost:${PORT}/v1"
 else
     echo "Starting vLLM server: ${MODEL} on :${PORT}"
-    bash start_vlm.sh --model "$MODEL" --port "$PORT"
+    bash scripts/cluster/start_vlm.sh --model "$MODEL" --port "$PORT"
     SERVER_STARTED=1
 fi
 

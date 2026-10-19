@@ -28,7 +28,7 @@ Use `run.sh` for one corrupted instance. It starts `start_vlm.sh`, runs `viscura
 Default command:
 ```bash
 cd /scratch/general/nfs1/u1592009/TimeWarp/VisCurate-
-./run.sh \
+scripts/cluster/run.sh \
   --instance data/corruption/rho010_uniform_seed1234_single \
   --out results/phase6_vllm_qwen3_4b_rho010 \
   --max-steps 200
@@ -36,7 +36,7 @@ cd /scratch/general/nfs1/u1592009/TimeWarp/VisCurate-
 
 Useful overrides:
 ```bash
-MODEL=Qwen/Qwen3-4B PORT=8001 KEEP_SERVER=1 ./run.sh ...
+MODEL=Qwen/Qwen3-4B PORT=8001 KEEP_SERVER=1 scripts/cluster/run.sh ...
 ```
 
 Outputs:
@@ -50,7 +50,7 @@ Use `run_vllm_curation_sweep.sh` to run the local vLLM model over all generated 
 Recommended command:
 ```bash
 cd /scratch/general/nfs1/u1592009/TimeWarp/VisCurate-
-FORCE=1 MAX_STEPS=200 MODEL=Qwen/Qwen3-4B bash run_vllm_curation_sweep.sh
+FORCE=1 MAX_STEPS=200 MODEL=Qwen/Qwen3-4B bash scripts/cluster/run_vllm_curation_sweep.sh
 ```
 
 Default output root:

@@ -1,7 +1,7 @@
 #!/bin/bash
 # VisCurate WACV-R2 run environment. conda activate is broken post-purge; use the env bin directly.
 # Resolve the repo root from this file's own location so the script survives the tree being moved.
-export VC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export VC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export VC_PY=/scratch/general/nfs1/u1592009/miniconda3/envs/viscurate/bin/python
 export PATH=/scratch/general/nfs1/u1592009/miniconda3/envs/viscurate/bin:$PATH
 export VISCURATE_TELEMETRY="$VC_ROOT/results/wacv_r2/telemetry.jsonl"

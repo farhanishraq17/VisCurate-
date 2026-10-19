@@ -12,7 +12,7 @@ PORT="${PORT:-8001}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-40960}"
 QUEUE_ROOT="${QUEUE_ROOT:-results/vllm_model_queue}"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../.."
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC1091
@@ -74,7 +74,7 @@ for idx in "${!MODEL_IDS[@]}"; do
   PORT="$PORT" \
   MAX_MODEL_LEN="$MAX_MODEL_LEN" \
   VLLM_EXTRA_ARGS="$extra_args" \
-  bash run_vllm_curation_sweep.sh 2>&1 | tee "$log_path"
+  bash scripts/cluster/run_vllm_curation_sweep.sh 2>&1 | tee "$log_path"
   exit_code="${PIPESTATUS[0]}"
 
   {
